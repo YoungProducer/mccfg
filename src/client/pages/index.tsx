@@ -1,3 +1,5 @@
+import { Header } from '@/components/Header';
+import { Content } from '@/components/Content';
 import Head from 'next/head';
 
 export default function Home() {
@@ -6,7 +8,8 @@ export default function Home() {
       <Head>
         <title>Minecraft config</title>
       </Head>
-      <main>Home Page</main>
+      <Header />
+      <Content></Content>
     </>
   );
 }
