@@ -1,0 +1,36 @@
+.container {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    padding: 16px 32px;
+    font-weight: 500;
+    font-size: 16px;
+    border-radius: 26px;
+    transition: all 0.2s ease-in-out;
+}
+
+.container:disabled {
+    filter: grayscale(0.9);
+    cursor: default;
+}
+
+.primary {
+    background-color: var(--primary-purple);
+    color: #eeeeee;
+}
+
+.primary:not(:disabled):hover {
+    background-color: var(--primary-purple-dark);
+}
+
+.secondary {
+    background-color: transparent;
+    box-shadow: inset 0px 0px 0px 3px var(--primary-purple);
+    color: var(--primary-purple);
+}
+
+.secondary:not(:disabled):hover {
+    background-color: var(--primary-purple-dark);
+    color: #eeeeee;
+    box-shadow: inset 0px 0px 0px 3px var(--primary-purple-dark);
+}
