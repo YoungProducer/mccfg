@@ -23,9 +23,7 @@ export class ConfigEntity {
   })
   version!: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.configs, {
-    cascade: true,
-  })
+  @ManyToOne(() => UserEntity, (user) => user.configs)
   owner: UserEntity;
 
   @ManyToOne(() => ModEntity, (mod) => mod.config)

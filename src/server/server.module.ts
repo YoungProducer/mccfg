@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common/decorators';
+import { Module } from '@nestjs/common';
 import { AppModule } from './app/app.module';
 import { ViewModule } from './view/view.module';
 
 @Module({
-  imports: [AppModule, ViewModule],
+  imports: [ViewModule, AppModule],
 })
 export class ServerModule {}
