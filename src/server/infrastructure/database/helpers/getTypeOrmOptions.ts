@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { EnvConfig } from 'src/server/config/interfaces';
+import { EnvConfig } from 'server/config/interfaces';
 
 export const getTypeOrmOptions = (config: EnvConfig): TypeOrmModuleOptions => {
   const entitiesNames = '*.entity{.ts,.js}';

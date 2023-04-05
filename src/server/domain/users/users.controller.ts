@@ -1,5 +1,5 @@
 import { Controller, HttpCode, Get, Body, Post } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
@@ -26,6 +26,9 @@ export class UsersController {
   async getAll(): Promise<UserDto[]> {
     const users = await this.usersService.findAll();
 
-    return users.map((user) => plainToClass(UserDto, user));
+    return users.map(
+      (user): UserDto =>
+        instanceToPlain(plainToInstance(UserDto, user)) as UserDto,
+    );
   }
 }
