@@ -11,7 +11,7 @@ const configFactory = (options: ConfigOptions) => ({
   useFactory: (): EnvConfig => {
     const fileName = `${process.env.NODE_ENV || 'development'}.env`;
 
-    const envFile = path.resolve(__dirname, '../..', options.folder, fileName);
+    const envFile = path.resolve(process.cwd(), options.folder, fileName);
 
     return dotenv.parse(fs.readFileSync(envFile)) as unknown as EnvConfig;
   },

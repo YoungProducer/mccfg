@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ServerModule } from './server.module';
 import { HttpLoggingInterceptor } from './lib/interceptors/logging/http-logging.interceptor';
 import { AllExceptionFilter } from './lib/exception-filters/all-exception.filter';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(ServerModule);
@@ -16,6 +17,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, options);
 
+  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalInterceptors(new HttpLoggingInterceptor());
   app.useGlobalFilters(new AllExceptionFilter());
 
