@@ -5,13 +5,14 @@ import { ConfigModule } from '../config/config.module';
 import { DataBaseModule } from '../infrastructure/database/database.module';
 import { UsersModule } from '../domain/users/users.module';
 import { RouterModule } from '@nestjs/core';
-import { ModsModule } from 'server/domain/mods/mods.module';
+import { MCVersionModule } from 'server/domain/mcversion/mcversion.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ folder: './configs' }),
     DataBaseModule,
     UsersModule,
+    MCVersionModule,
     RouterModule.register([
       {
         path: 'api/v1',
@@ -19,7 +20,7 @@ import { ModsModule } from 'server/domain/mods/mods.module';
       },
       {
         path: 'api/v1',
-        module: ModsModule,
+        module: MCVersionModule,
       },
     ]),
   ],

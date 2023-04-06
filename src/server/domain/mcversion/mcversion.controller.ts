@@ -3,9 +3,10 @@ import { MCVersionService } from './mcversion.service';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { VersionResponseDto } from './dto/version.response.dto';
 import { CreateVersionDto } from './dto/create-version.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller('/mc-versions')
+@ApiTags('MC Versions')
+@Controller('mc-versions')
 export class MCVersionController {
   constructor(private mcVersionService: MCVersionService) {}
 
