@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity()
+@Entity('mc_versions')
 export class MCVersionEntity {
   @PrimaryGeneratedColumn()
   id!: number;
