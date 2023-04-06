@@ -5,6 +5,7 @@ import { ConfigModule } from '../config/config.module';
 import { DataBaseModule } from '../infrastructure/database/database.module';
 import { UsersModule } from '../domain/users/users.module';
 import { RouterModule } from '@nestjs/core';
+import { ModsModule } from 'server/domain/mods/mods.module';
 
 @Module({
   imports: [
@@ -15,6 +16,10 @@ import { RouterModule } from '@nestjs/core';
       {
         path: 'api/v1',
         module: UsersModule,
+      },
+      {
+        path: 'api/v1',
+        module: ModsModule,
       },
     ]),
   ],
