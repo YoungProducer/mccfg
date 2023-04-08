@@ -36,4 +36,16 @@ describe('PIPE ParseBoolPipe', () => {
     expect(target.transform(testValue, metadata)).not.toBeInstanceOf(String);
     expect(target.transform(testValue, {} as any)).toBe(false);
   });
+
+  it('should return a "defaultValue" if "optional" is "true" and "value" is not provided', async () => {
+    const defaultValue = false;
+
+    target = new ParseBoolPipe({
+      optional: true,
+      defaultValue,
+    });
+
+    expect(target.transform('', metadata)).not.toBeInstanceOf(String);
+    expect(target.transform('', {} as any)).toBe(defaultValue);
+  });
 });
