@@ -1,12 +1,13 @@
 import {
   Column,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
-import { ModEntity } from '../../mods/entities/mod.entity';
+import { ModVersionEntity } from 'server/domain/mods/entities/mod-version.entity';
 
 @Entity('configs')
 export class ConfigEntity {
@@ -26,9 +27,10 @@ export class ConfigEntity {
   @ManyToOne(() => UserEntity, (user) => user.configs)
   owner: UserEntity;
 
-  @ManyToOne(() => ModEntity, (mod) => mod.config)
-  primaryMod!: ModEntity;
+  @ManyToOne(() => ModVersionEntity, (mod) => mod.configs)
+  primaryMod!: ModVersionEntity;
 
-  @ManyToMany(() => ModEntity)
-  dependecies!: ModEntity[];
+  @ManyToMany(() => ModVersionEntity)
+  @JoinTable()
+  dependecies!: ModVersionEntity[];
 }
