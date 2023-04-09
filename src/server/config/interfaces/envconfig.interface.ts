@@ -4,6 +4,7 @@ export interface EnvConfig {
   DB_HOST: string;
   DB_USERNAME: string;
   DB_PASSWORD: string;
+  DB_EXTERNAL_PORT: string;
 
   // ==================== will be needed later ====================== //
   // JWT_SECRET: string;
