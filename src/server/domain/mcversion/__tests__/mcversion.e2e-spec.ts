@@ -39,8 +39,8 @@ describe('E2E MCVersion', () => {
     await app.init();
   });
 
-  beforeEach(() => {
-    resetRepos(repos);
+  beforeEach(async () => {
+    await resetRepos(repos);
   });
 
   afterAll(async () => {
@@ -48,6 +48,10 @@ describe('E2E MCVersion', () => {
   });
 
   describe('POST /mc-versions', () => {
+    beforeEach(async () => {
+      await resetRepos(repos);
+    });
+
     it('should create a user if there are no erros', async () => {
       return request(app.getHttpServer())
         .post('/mc-versions')
@@ -78,6 +82,10 @@ describe('E2E MCVersion', () => {
   });
 
   describe('GET /mc-versions', () => {
+    beforeEach(async () => {
+      await resetRepos(repos);
+    });
+
     it('should return a list of all versions', async () => {
       const entityData = {
         version: '1.0',

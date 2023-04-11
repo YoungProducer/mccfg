@@ -53,8 +53,8 @@ describe('E2E Mods', () => {
     await app.init();
   });
 
-  beforeEach(() => {
-    resetRepos(repos);
+  beforeEach(async () => {
+    await resetRepos(repos);
   });
 
   afterAll(async () => {
@@ -92,8 +92,8 @@ describe('E2E Mods', () => {
   });
 
   describe('POST /mods/:id/versions', () => {
-    beforeEach(() => {
-      resetRepos(repos);
+    beforeEach(async () => {
+      await resetRepos(repos);
     });
 
     it('should return 409(Conflict) status if mod version already exist', async () => {
@@ -124,8 +124,8 @@ describe('E2E Mods', () => {
     });
 
     describe(`WHEN typeof "compatibleMCVersions" is "string"`, () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       it('should return 404(NotFound) status if mc version does not exist', async () => {
@@ -180,8 +180,8 @@ describe('E2E Mods', () => {
     });
 
     describe(`WHEN typeof "compatibleMCVersions" is array`, () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       it(`should return 404(NotFound) status if at least one of minecraft versions doesn't exist`, async () => {
@@ -240,8 +240,8 @@ describe('E2E Mods', () => {
   });
 
   describe('GET /mods', () => {
-    beforeEach(() => {
-      resetRepos(repos);
+    beforeEach(async () => {
+      await resetRepos(repos);
     });
 
     it('should return mods without versions if "versions" query param is missing or set to false', async () => {
@@ -299,8 +299,8 @@ describe('E2E Mods', () => {
 
   describe('GET /mods/:id', () => {
     describe('STATUS 200', () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       describe('QUERY PARAM "versions" is not specified or set to "false"', () => {
@@ -384,8 +384,8 @@ describe('E2E Mods', () => {
 
   describe('GET /mods/:id/versions', () => {
     describe('STATUS 200', () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       it('should return an array of mod versions', async () => {
@@ -425,8 +425,8 @@ describe('E2E Mods', () => {
 
   describe('GET /mods/versions/:versionId', () => {
     describe('STATUS 200', () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       it('should return mod version', async () => {

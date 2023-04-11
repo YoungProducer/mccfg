@@ -2,12 +2,11 @@ import request from 'supertest';
 import { NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ObjectLiteral, Repository } from 'typeorm';
+import { DeepPartial, ObjectLiteral, Repository } from 'typeorm';
 
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { UsersModule } from '../users.module';
 import { UserEntity } from '../entities/user.entity';
-import { CreateUserData } from '../interfaces';
 import { DataBaseMockModule } from 'server/mocks/database-module.mock';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 
@@ -19,7 +18,7 @@ describe('Users', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [UsersModule, DataBaseMockModule],
+      imports: [DataBaseMockModule, UsersModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -32,13 +31,13 @@ describe('Users', () => {
       Repository<ConfirmationTokenEntity>
     >(getRepositoryToken(ConfirmationTokenEntity));
 
-    repos = [confirmationsTokensRepo, userRepo];
+    repos = [userRepo, confirmationsTokensRepo];
 
     await app.init();
   });
 
-  beforeEach(() => {
-    resetRepos(repos);
+  beforeEach(async () => {
+    await resetRepos(repos);
   });
 
   afterAll(async () => {
@@ -60,12 +59,18 @@ describe('Users', () => {
   });
 
   describe('GET /users', () => {
+    beforeEach(async () => {
+      await resetRepos(repos);
+    });
+
     it('should return list of users only with disclosed properties', async () => {
-      const userData: CreateUserData = {
+      const userData: DeepPartial<UserEntity> = {
         username: 'username',
         email: 'email@email',
         password: 'password',
         salt: 'salt',
+        confirmationToken: null,
+        configs: [],
       };
 
       const createdUser = userRepo.create(userData);
@@ -88,6 +93,10 @@ describe('Users', () => {
 
   describe('POST /users/verify/:token', () => {
     describe('STATUS 404', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
       it('should return an error if token was not found', async () => {
         const { statusCode, body } = await request(app.getHttpServer())
           .post('/users/verify/token')
@@ -99,8 +108,8 @@ describe('Users', () => {
     });
 
     describe('STATUS 400', () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       it('should return an error if token is not binded to any of users', async () => {
@@ -128,6 +137,7 @@ describe('Users', () => {
           email: 'email@email',
           password: 'password',
           salt: 'salt',
+          confirmationToken: null,
         });
 
         const createdUser = await userRepo.save(userEntityToCreate);
@@ -136,7 +146,7 @@ describe('Users', () => {
 
         const tokenEntityToCreate = confirmationsTokensRepo.create({
           token,
-          expirationDate: new Date(Date.now() - 10000),
+          expirationDate: new Date(Date.now() - 1000000),
           user: createdUser,
         });
 
@@ -152,8 +162,8 @@ describe('Users', () => {
     });
 
     describe('STATUS 200', () => {
-      beforeEach(() => {
-        resetRepos(repos);
+      beforeEach(async () => {
+        await resetRepos(repos);
       });
 
       it('should updated user and delete token if data is correct', async () => {

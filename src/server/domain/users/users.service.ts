@@ -38,7 +38,9 @@ export class UsersService {
       where: {
         token,
       },
-      relations: ['user'],
+      relations: {
+        user: true,
+      },
     });
 
     if (!tokenEntity) {
@@ -47,7 +49,7 @@ export class UsersService {
 
     const user = tokenEntity.user;
 
-    if (!user) {
+    if (!tokenEntity.user) {
       throw new BadRequestException('Token has no binded user!');
     }
 

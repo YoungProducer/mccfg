@@ -46,6 +46,7 @@ export class UserEntity {
 
   @OneToOne(() => ConfirmationTokenEntity, (token) => token.user, {
     cascade: true,
+    nullable: true,
   })
   @JoinColumn()
   confirmationToken: ConfirmationTokenEntity;

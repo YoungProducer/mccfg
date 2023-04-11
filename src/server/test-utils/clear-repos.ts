@@ -11,6 +11,8 @@ export const getRepos = (
     module.get<Repository<ObjectLiteral>>(getRepositoryToken(entity)),
   );
 
-export const resetRepos = (repositories: Repository<ObjectLiteral>[]) => {
-  repositories.forEach((repo) => repo.delete({}));
+export const resetRepos = async (repositories: Repository<ObjectLiteral>[]) => {
+  for (const repo of repositories) {
+    await repo.delete({});
+  }
 };
