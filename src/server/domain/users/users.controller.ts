@@ -1,6 +1,6 @@
-import { Controller, HttpCode, Get, Body, Post } from '@nestjs/common';
+import { Controller, HttpCode, Get, Body, Post, Param } from '@nestjs/common';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,5 +30,15 @@ export class UsersController {
       (user): UserDto =>
         instanceToPlain(plainToInstance(UserDto, user)) as UserDto,
     );
+  }
+
+  @Post('/verify/:token')
+  @HttpCode(200)
+  @ApiParam({
+    name: 'token',
+    type: String,
+  })
+  async verify(@Param('token') token: string): Promise<void> {
+    await this.usersService.verify(token);
   }
 }

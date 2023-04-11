@@ -43,9 +43,9 @@ describe('E2E Mods', () => {
     );
 
     repos = getRepos(moduleRef, [
+      MCVersionEntity,
       ModEntity,
       ModVersionEntity,
-      MCVersionEntity,
       UserEntity,
       ConfigEntity,
     ]);

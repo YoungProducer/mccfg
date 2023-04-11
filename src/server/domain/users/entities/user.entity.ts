@@ -1,5 +1,13 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ConfigEntity } from '../../config/entities/config.entity';
+import { ConfirmationTokenEntity } from './confirmation-token.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -28,8 +36,17 @@ export class UserEntity {
   })
   salt!: string;
 
+  @Column('boolean', { default: false })
+  verified!: boolean;
+
   @OneToMany(() => ConfigEntity, (config) => config.owner, {
     cascade: true,
   })
   configs!: ConfigEntity[];
+
+  @OneToOne(() => ConfirmationTokenEntity, (token) => token.user, {
+    cascade: true,
+  })
+  @JoinColumn()
+  confirmationToken: ConfirmationTokenEntity;
 }

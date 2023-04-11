@@ -5,7 +5,9 @@ import { UsersController } from '../users.controller';
 import { UsersService } from '../users.service';
 import { UserDto } from '../dto/user.dto';
 import { UserEntity } from '../entities/user.entity';
-import { repositoryMockFactory } from 'server/mocks/repository-mock';
+import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
+import { Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
 
 describe('UsersController', () => {
   let usersController: UsersController;
@@ -18,7 +20,11 @@ describe('UsersController', () => {
         UsersService,
         {
           provide: getRepositoryToken(UserEntity),
-          useFactory: repositoryMockFactory,
+          useClass: Repository,
+        },
+        {
+          provide: getRepositoryToken(ConfirmationTokenEntity),
+          useClass: Repository,
         },
       ],
     }).compile();
@@ -27,8 +33,13 @@ describe('UsersController', () => {
     usersController = moduleRef.get<UsersController>(UsersController);
   });
 
+  it('should be defined', () => {
+    expect(usersController).toBeDefined();
+    expect(usersService).toBeDefined();
+  });
+
   describe('API getAll', () => {
-    it(`should exclude 'password' and 'salt' props from response`, async () => {
+    it(`should return users and match the response dto`, async () => {
       const result: UserDto = {
         id: 1,
         email: 'email',
@@ -40,6 +51,8 @@ describe('UsersController', () => {
         password: 'password',
         salt: 'salt',
         configs: [],
+        confirmationToken: null,
+        verified: false,
       };
 
       jest
@@ -47,6 +60,25 @@ describe('UsersController', () => {
         .mockImplementation(async () => [serviceFindAllResult]);
 
       expect(await usersController.getAll()).toEqual([result]);
+    });
+  });
+
+  describe('API verify', () => {
+    it('should throw an error if service throws it', () => {
+      jest
+        .spyOn(usersService, 'verify')
+        .mockRejectedValue(new NotFoundException('error'));
+
+      const call = usersController.verify('token');
+
+      expect(call).rejects.toThrow(NotFoundException);
+      expect(call).rejects.toThrowError('error');
+    });
+
+    it('should return void if there are no errors', async () => {
+      jest.spyOn(usersService, 'verify').mockResolvedValue(undefined);
+
+      expect(await usersController.verify('token')).toBeUndefined();
     });
   });
 });

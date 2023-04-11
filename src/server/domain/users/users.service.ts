@@ -1,15 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { UserEntity } from './entities/user.entity';
 import { CreateUserData } from './interfaces';
+import { ConfirmationTokenEntity } from './entities/confirmation-token.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
+
+    @InjectRepository(ConfirmationTokenEntity)
+    private confirmatinTokensRepository: Repository<ConfirmationTokenEntity>,
   ) {}
 
   public async create(data: CreateUserData): Promise<UserEntity> {
@@ -23,6 +31,35 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return user;
+  }
+
+  public async verify(token: string): Promise<void> {
+    const tokenEntity = await this.confirmatinTokensRepository.findOne({
+      where: {
+        token,
+      },
+      relations: ['user'],
+    });
+
+    if (!tokenEntity) {
+      throw new NotFoundException('Token is invalid!');
+    }
+
+    const user = tokenEntity.user;
+
+    if (!user) {
+      throw new BadRequestException('Token has no binded user!');
+    }
+
+    if (Number(Date.now()) > Number(tokenEntity.expirationDate)) {
+      throw new BadRequestException('Token is expired!');
+    }
+
+    user.verified = true;
+    user.confirmationToken = null;
+
+    await this.usersRepository.save(user);
+    await this.confirmatinTokensRepository.remove(tokenEntity);
   }
 
   public async findAll(): Promise<UserEntity[]> {

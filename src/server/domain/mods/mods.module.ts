@@ -8,6 +8,7 @@ import { MCVersionModule } from '../mcversion/mcversion.module';
 import { ConfigEntity } from '../config/entities/config.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { ModsController } from './mods.controller';
+import { ConfirmationTokenEntity } from '../users/entities/confirmation-token.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ModsController } from './mods.controller';
       MCVersionEntity,
       ConfigEntity,
       UserEntity,
+      ConfirmationTokenEntity,
     ]),
     MCVersionModule,
   ],
