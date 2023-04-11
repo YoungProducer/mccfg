@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConflictException } from '@nestjs/common';
 
-describe('MCVersion service', () => {
+describe('SERVICE MCVersion', () => {
   let mcVersionService: MCVersionService;
   let repo: Repository<MCVersionEntity>;
 
@@ -28,7 +28,11 @@ describe('MCVersion service', () => {
     jest.spyOn(repo, 'create').mockImplementation((e: any) => e);
   });
 
-  describe('create', () => {
+  it('should be defined', () => {
+    expect(mcVersionService).toBeDefined();
+  });
+
+  describe('METHOD create', () => {
     it(`should return a created entity if there are no errors`, async () => {
       const version = '1.0';
 

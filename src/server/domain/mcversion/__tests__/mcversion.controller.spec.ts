@@ -6,7 +6,7 @@ import { MCVersionEntity } from '../entities/mc-version.entity';
 import { Repository } from 'typeorm';
 import { CreateVersionDto } from '../dto/create-version.dto';
 
-describe('MCVersion controller', () => {
+describe('CONTROLLER MCVersion', () => {
   let mcversionController: MCVersionController;
   let mcversionService: MCVersionService;
 

@@ -10,7 +10,7 @@ import { DI_CONFIG } from 'server/config/constants';
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { MCVersionEntity } from '../entities/mc-version.entity';
 
-describe('MCVersion', () => {
+describe('E2E MCVersion', () => {
   let app: NestApplication;
   let repos: Repository<ObjectLiteral>[];
   let versionsRepo: Repository<MCVersionEntity>;
@@ -47,7 +47,7 @@ describe('MCVersion', () => {
     await app.close();
   });
 
-  describe('/POST create', () => {
+  describe('POST /mc-versions', () => {
     it('should create a user if there are no erros', async () => {
       return request(app.getHttpServer())
         .post('/mc-versions')
@@ -77,7 +77,7 @@ describe('MCVersion', () => {
     });
   });
 
-  describe('/GET getAll', () => {
+  describe('GET /mc-versions', () => {
     it('should return a list of all versions', async () => {
       const entityData = {
         version: '1.0',

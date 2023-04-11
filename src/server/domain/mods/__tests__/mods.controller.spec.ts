@@ -12,7 +12,10 @@ import { CreateModDto } from '../dto/create-mod.dto';
 import { CreateModVersionDto } from '../dto/create-mod-version.dto';
 import { MCVersionService } from 'server/domain/mcversion/mcversion.service';
 import { ModDto } from '../dto/mod.dto';
-import { ModVersionDto } from '../dto/mod-version.dto';
+import {
+  GetAllModVersionsResponseDto,
+  GetModVersionResponseDto,
+} from '../dto/mod-version.dto';
 
 describe('CONTROLLER Mods', () => {
   let modsController: ModsController;
@@ -227,7 +230,7 @@ describe('CONTROLLER Mods', () => {
         versions: [returnedModVersion],
       };
 
-      const expectedModVersion: ModVersionDto = {
+      const expectedModVersion: GetModVersionResponseDto = {
         id: returnedModVersion.id,
         version: returnedModVersion.version,
         compatibleMCVersions: [],
@@ -267,10 +270,9 @@ describe('CONTROLLER Mods', () => {
         .spyOn(modsService, 'getAllModVersions')
         .mockResolvedValue([mockVersion]);
 
-      const expectedVersion: ModVersionDto = {
+      const expectedVersion: GetAllModVersionsResponseDto = {
         id: 1,
         version: '1.0',
-        compatibleMCVersions: [],
       };
 
       const modId = 1;
@@ -298,7 +300,7 @@ describe('CONTROLLER Mods', () => {
         .spyOn(modsService, 'findModVersion')
         .mockResolvedValue(mockVersion);
 
-      const expectedVersion: ModVersionDto = {
+      const expectedVersion: GetModVersionResponseDto = {
         id: versionId,
         version: mockVersion.version,
         compatibleMCVersions: [],

@@ -421,45 +421,45 @@ describe('E2E Mods', () => {
         expect(body).toEqual([expected]);
       });
     });
+  });
 
-    describe('GET /mods/versions/:versionId', () => {
-      describe('STATUS 200', () => {
-        beforeEach(() => {
-          resetRepos(repos);
+  describe('GET /mods/versions/:versionId', () => {
+    describe('STATUS 200', () => {
+      beforeEach(() => {
+        resetRepos(repos);
+      });
+
+      it('should return mod version', async () => {
+        const modEntityToCreate = modsRepo.create({
+          name: 'name',
         });
 
-        it('should return mod version', async () => {
-          const modEntityToCreate = modsRepo.create({
-            name: 'name',
-          });
+        const createdModEntity = await modsRepo.save(modEntityToCreate);
 
-          const createdModEntity = await modsRepo.save(modEntityToCreate);
-
-          const versionToCreate = modVersionsRepo.create({
-            version: '1.0',
-            mod: createdModEntity,
-            configs: [],
-            compatibleMCVersions: [],
-          });
-
-          const createdModVersionEntity = await modVersionsRepo.save(
-            versionToCreate,
-          );
-
-          const expected = instanceToPlain(
-            plainToInstance(
-              GetAllModVersionsResponseDto,
-              createdModVersionEntity,
-            ),
-          );
-
-          const { statusCode, body } = await request(app.getHttpServer()).get(
-            `/mods/versions/${createdModVersionEntity.id}`,
-          );
-
-          expect(statusCode).toBe(200);
-          expect(body).toEqual(expected);
+        const versionToCreate = modVersionsRepo.create({
+          version: '1.0',
+          mod: createdModEntity,
+          configs: [],
+          compatibleMCVersions: [],
         });
+
+        const createdModVersionEntity = await modVersionsRepo.save(
+          versionToCreate,
+        );
+
+        const expected = instanceToPlain(
+          plainToInstance(
+            GetAllModVersionsResponseDto,
+            createdModVersionEntity,
+          ),
+        );
+
+        const { statusCode, body } = await request(app.getHttpServer()).get(
+          `/mods/versions/${createdModVersionEntity.id}`,
+        );
+
+        expect(statusCode).toBe(200);
+        expect(body).toEqual(expected);
       });
     });
   });
