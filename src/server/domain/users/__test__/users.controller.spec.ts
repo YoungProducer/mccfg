@@ -7,7 +7,8 @@ import { UserDto } from '../dto/user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, ConflictException } from '@nestjs/common';
+import { CreateUserData } from '../interfaces';
 
 describe('UsersController', () => {
   let usersController: UsersController;
@@ -36,6 +37,32 @@ describe('UsersController', () => {
   it('should be defined', () => {
     expect(usersController).toBeDefined();
     expect(usersService).toBeDefined();
+  });
+
+  describe('API create', () => {
+    it('should throw an error if service does it', () => {
+      jest
+        .spyOn(usersService, 'create')
+        .mockRejectedValue(new ConflictException('error'));
+
+      const call = usersService.create({} as any);
+
+      expect(call).rejects.toThrow(ConflictException);
+      expect(call).rejects.toThrowError('error');
+    });
+
+    it('should return created user if there are no errors', async () => {
+      const data: CreateUserData = {
+        username: 'username',
+        email: 'email',
+        hash: 'hash',
+        salt: 'salt',
+      };
+
+      jest.spyOn(usersService, 'create').mockResolvedValue(data as any);
+
+      expect(await usersService.create(data)).toEqual(data);
+    });
   });
 
   describe('API getAll', () => {

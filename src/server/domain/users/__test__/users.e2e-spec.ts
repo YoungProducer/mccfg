@@ -9,6 +9,7 @@ import { UsersModule } from '../users.module';
 import { UserEntity } from '../entities/user.entity';
 import { DataBaseMockModule } from 'server/mocks/database-module.mock';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
+import { CreateUserData } from '../interfaces';
 
 describe('Users', () => {
   let app: NestApplication;
@@ -56,6 +57,82 @@ describe('Users', () => {
           salt: 'salt',
         })
         .expect(201);
+    });
+
+    describe('STATUS 409', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return an error if user with given "username" already exist', async () => {
+        const username = 'username';
+
+        const data: CreateUserData = {
+          username,
+          email: 'email',
+          hash: 'hash',
+          salt: 'salt',
+        };
+
+        const userToCreate = userRepo.create({ ...data });
+
+        await userRepo.save(userToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/users')
+          .send(data);
+
+        expect(statusCode).toBe(409);
+        expect(body.message).toBe(`Username ${username} is already taken!`);
+      });
+
+      it('should return an error if user with given "email" already exist', async () => {
+        const email = 'email';
+
+        const data: CreateUserData = {
+          username: 'username',
+          email,
+          hash: 'hash',
+          salt: 'salt',
+        };
+
+        const userToCreate = userRepo.create({
+          ...data,
+          username: 'user',
+        });
+
+        await userRepo.save(userToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/users')
+          .send(data);
+
+        expect(statusCode).toBe(409);
+        expect(body.message).toBe(`Email ${email} is already taken!`);
+      });
+
+      it('should reutrn an error if user with both "email" and "username" already exist', async () => {
+        const username = 'username';
+        const email = 'email';
+
+        const data: CreateUserData = {
+          username,
+          email,
+          hash: 'hash',
+          salt: 'salt',
+        };
+
+        const userToCreate = userRepo.create(data);
+
+        await userRepo.save(userToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/users')
+          .send(data);
+
+        expect(statusCode).toBe(409);
+        expect(body.message).toBe(`Username ${username} is already taken!`);
+      });
     });
   });
 

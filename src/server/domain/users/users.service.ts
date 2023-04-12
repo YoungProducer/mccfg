@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { CreateUserData } from './interfaces';
 import { ConfirmationTokenEntity } from './entities/confirmation-token.entity';
+import { ConflictException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,20 @@ export class UsersService {
   ) {}
 
   public async create(data: CreateUserData): Promise<UserEntity> {
+    const existingUser = await this.usersRepository.findOne({
+      where: [{ username: data.username }, { email: data.email }],
+    });
+
+    if (existingUser?.username === data.username) {
+      throw new ConflictException(
+        `Username ${data.username} is already taken!`,
+      );
+    }
+
+    if (existingUser?.email === data.email) {
+      throw new ConflictException(`Email ${data.email} is already taken!`);
+    }
+
     const user = this.usersRepository.create({
       username: data.username,
       email: data.email,

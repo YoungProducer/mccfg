@@ -4,7 +4,12 @@ import { UserEntity } from '../entities/user.entity';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
+import { CreateUserData } from '../interfaces';
 
 describe('SERVICE Users', () => {
   let userService: UsersService;
@@ -39,6 +44,63 @@ describe('SERVICE Users', () => {
 
   it('should be defined', () => {
     expect(userService).toBeDefined();
+  });
+
+  describe('METHOD create', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should throw ConflictException if user with given username already exist', () => {
+      const username = 'username';
+
+      jest.spyOn(usersRepo, 'findOne').mockResolvedValue({
+        username,
+      } as any);
+
+      const call = userService.create({
+        email: '',
+        hash: '',
+        salt: '',
+        username,
+      });
+
+      expect(call).rejects.toThrow(ConflictException);
+      expect(call).rejects.toThrowError(
+        `Username ${username} is already taken!`,
+      );
+    });
+
+    it('should throw ConflictException if user with given email already exist', () => {
+      const email = 'email';
+
+      jest.spyOn(usersRepo, 'findOne').mockResolvedValue({ email } as any);
+
+      const call = userService.create({
+        email,
+        hash: '',
+        salt: '',
+        username: '',
+      });
+
+      expect(call).rejects.toThrow(ConflictException);
+      expect(call).rejects.toThrowError(`Email ${email} is already taken!`);
+    });
+
+    it('should return created user if there are no erros', async () => {
+      jest.spyOn(usersRepo, 'findOne').mockResolvedValue(undefined);
+      jest.spyOn(usersRepo, 'create').mockImplementation((e: any) => e);
+      jest.spyOn(usersRepo, 'save').mockImplementation((e: any) => e);
+
+      const data: CreateUserData = {
+        email: 'email',
+        hash: 'hash',
+        salt: 'salt',
+        username: 'username',
+      };
+
+      expect(await userService.create(data)).toEqual(data);
+    });
   });
 
   describe('METHOD verify', () => {
