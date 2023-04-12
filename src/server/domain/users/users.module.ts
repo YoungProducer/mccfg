@@ -23,5 +23,6 @@ import { ConfirmationTokenEntity } from './entities/confirmation-token.entity';
   ],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
 export class UsersModule {}

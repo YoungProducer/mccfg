@@ -5,6 +5,8 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  ParseBoolPipe,
+  DefaultValuePipe,
   Get,
   Query,
 } from '@nestjs/common';
@@ -12,7 +14,6 @@ import { ModsService } from './mods.service';
 import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateModDto } from './dto/create-mod.dto';
 import { CreateModVersionDto } from './dto/create-mod-version.dto';
-import { ParseBoolPipe } from 'server/lib/pipes/parse-bool-pipe';
 import { ModDto } from './dto/mod.dto';
 import {
   GetAllModVersionsResponseDto,
@@ -62,13 +63,7 @@ export class ModsController {
     isArray: true,
   })
   async getAllMods(
-    @Query(
-      'versions',
-      new ParseBoolPipe({
-        optional: true,
-        defaultValue: false,
-      }),
-    )
+    @Query('versions', new DefaultValuePipe(false), ParseBoolPipe)
     versions = false,
   ): Promise<ModDto[]> {
     const res = await this.modsService.getAll({
@@ -96,14 +91,8 @@ export class ModsController {
     type: ModDto,
   })
   async getMod(
-    @Param('id', new ParseIntPipe()) id: number,
-    @Query(
-      'versions',
-      new ParseBoolPipe({
-        optional: true,
-        defaultValue: false,
-      }),
-    )
+    @Param('id', ParseIntPipe) id: number,
+    @Query('versions', new DefaultValuePipe(false), ParseBoolPipe)
     versions = false,
   ): Promise<ModDto> {
     const res = await this.modsService.findMod(id, {
@@ -126,7 +115,7 @@ export class ModsController {
     isArray: true,
   })
   async getAllModVersions(
-    @Param('id', new ParseIntPipe()) id: number,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<GetAllModVersionsResponseDto[]> {
     const res = await this.modsService.getAllModVersions(id);
 
@@ -148,7 +137,7 @@ export class ModsController {
     type: GetModVersionResponseDto,
   })
   async getModVersion(
-    @Param('versionId', new ParseIntPipe()) modVersionId: number,
+    @Param('versionId', ParseIntPipe) modVersionId: number,
   ): Promise<GetModVersionResponseDto> {
     const res = await this.modsService.findModVersion(modVersionId);
     return instanceToPlain(
