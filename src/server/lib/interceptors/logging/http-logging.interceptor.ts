@@ -62,7 +62,7 @@ export class HttpLoggingInterceptor implements NestInterceptor {
         isInternalError && console.log(err);
         error(closeWrap);
 
-        return throwError(() => new Error(err));
+        return throwError(() => err);
       }),
     );
   }
