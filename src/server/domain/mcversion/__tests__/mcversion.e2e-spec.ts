@@ -44,6 +44,7 @@ describe('E2E MCVersion', () => {
   });
 
   afterAll(async () => {
+    await resetRepos(repos);
     await app.close();
   });
 

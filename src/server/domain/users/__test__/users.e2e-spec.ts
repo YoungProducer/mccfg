@@ -41,6 +41,7 @@ describe('Users', () => {
   });
 
   afterAll(async () => {
+    await resetRepos(repos);
     await app.close();
   });
 

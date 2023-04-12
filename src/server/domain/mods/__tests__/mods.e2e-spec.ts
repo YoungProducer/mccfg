@@ -58,6 +58,7 @@ describe('E2E Mods', () => {
   });
 
   afterAll(async () => {
+    await resetRepos(repos);
     await app.close();
   });
 
