@@ -107,6 +107,7 @@ describe('SERVICE Users', () => {
       expect(removeSpy).toBeCalled();
       expect(saveSpy).toBeCalledWith({
         verified: true,
+        confirmationToken: null,
       });
     });
   });

@@ -48,8 +48,8 @@ describe('UsersController', () => {
 
       const serviceFindAllResult: UserEntity = {
         ...result,
-        password: 'password',
         salt: 'salt',
+        hash: 'hash',
         configs: [],
         confirmationToken: null,
         verified: false,

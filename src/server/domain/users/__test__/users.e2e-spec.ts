@@ -51,7 +51,7 @@ describe('Users', () => {
         .send({
           username: 'username',
           email: 'email@email',
-          password: 'password',
+          hash: 'hash',
           salt: 'salt',
         })
         .expect(201);
@@ -67,7 +67,7 @@ describe('Users', () => {
       const userData: DeepPartial<UserEntity> = {
         username: 'username',
         email: 'email@email',
-        password: 'password',
+        hash: 'hash',
         salt: 'salt',
         confirmationToken: null,
         configs: [],
@@ -86,7 +86,7 @@ describe('Users', () => {
 
       const user = body[0];
 
-      expect(user).not.toHaveProperty('password');
+      expect(user).not.toHaveProperty('hash');
       expect(user).not.toHaveProperty('salt');
     });
   });
@@ -135,7 +135,7 @@ describe('Users', () => {
         const userEntityToCreate = userRepo.create({
           username: 'username',
           email: 'email@email',
-          password: 'password',
+          hash: 'hash',
           salt: 'salt',
           confirmationToken: null,
         });
@@ -170,7 +170,7 @@ describe('Users', () => {
         const userEntityToCreate = userRepo.create({
           username: 'username',
           email: 'email@email',
-          password: 'password',
+          hash: 'hash',
           salt: 'salt',
         });
 

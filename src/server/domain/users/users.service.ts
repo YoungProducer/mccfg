@@ -24,7 +24,7 @@ export class UsersService {
     const user = this.usersRepository.create({
       username: data.username,
       email: data.email,
-      password: data.password,
+      hash: data.hash,
       salt: data.salt,
     });
 

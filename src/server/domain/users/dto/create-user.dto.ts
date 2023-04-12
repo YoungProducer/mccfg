@@ -24,10 +24,10 @@ export class CreateUserDto {
   @Expose()
   @IsString()
   @IsNotEmpty({
-    message: `'password' property is missing in request body!`,
+    message: `'hash' property is missing in request body!`,
   })
   @ApiProperty()
-  password: string;
+  hash: string;
 
   @Expose()
   @IsString()

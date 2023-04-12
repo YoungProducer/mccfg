@@ -1,4 +1,5 @@
 /pgdata
+/docker/pgdata
 
 # compiled output
 /dist

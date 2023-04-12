@@ -29,12 +29,13 @@ export class UserEntity {
   @Column('varchar', {
     length: 255,
   })
-  password!: string;
+  salt!: string;
 
   @Column('varchar', {
     length: 255,
+    nullable: false,
   })
-  salt!: string;
+  hash!: string;
 
   @Column('boolean', { default: false })
   verified!: boolean;
