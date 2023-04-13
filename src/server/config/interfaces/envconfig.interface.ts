@@ -6,9 +6,8 @@ export interface EnvConfig {
   DB_PASSWORD: string;
   DB_EXTERNAL_PORT: string;
 
-  // ==================== will be needed later ====================== //
-  // JWT_SECRET: string;
-  // JWT_EXPIRES_IN: string;
+  JWT_SECRET: string;
+  JWT_EXPIRES_IN: string;
 
   // VERIFY_SECRET: string;
   // VERIFY_EXPIRES_IN: string;
