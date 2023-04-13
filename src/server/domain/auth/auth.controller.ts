@@ -1,4 +1,4 @@
-import { Controller, Inject, Body, Post } from '@nestjs/common';
+import { Controller, Inject, Body, Post, HttpCode } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -11,6 +11,7 @@ export class AuthController {
   constructor(@Inject(AuthService) private authService: AuthService) {}
 
   @Post('/sign-up')
+  @HttpCode(200)
   @ApiBody({
     type: SignUpDto,
   })
