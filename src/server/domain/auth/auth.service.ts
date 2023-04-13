@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfirmationTokenEntity } from '../users/entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
 import { SignUpCredentials } from './interfaces/sign-up-credentials.interface';
 import { UserEntity } from '../users/entities/user.entity';
-import { hashPassword } from 'server/lib/password-hasher';
+import { comparePasswords, hashPassword } from 'server/lib/password-hasher';
 import { CreateUserData } from '../users/interfaces';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+import { SignInCredentials } from './interfaces/sign-in-credentials.interface';
 
 @Injectable()
 export class AuthService {
@@ -41,5 +46,37 @@ export class AuthService {
     await this.confirmationTokensRepository.save(confirmationTokenEntity);
 
     return user;
+  }
+
+  public async verifyCredentianls(
+    credentials: SignInCredentials,
+  ): Promise<UserEntity> {
+    const userEntity = await this.usersService.findOneByUsername(
+      credentials.username,
+    );
+
+    if (!userEntity) {
+      throw new NotFoundException(
+        `User with given username: ${credentials.username} does not exist!`,
+      );
+    }
+
+    if (!userEntity.verified) {
+      throw new UnauthorizedException(
+        'Account is not verified. Please check your inbox!',
+      );
+    }
+
+    const matches = await comparePasswords({
+      salt: userEntity.salt,
+      storedPass: userEntity.hash,
+      providedPass: credentials.password,
+    });
+
+    if (!matches) {
+      throw new UnauthorizedException('Invalid password!');
+    }
+
+    return userEntity;
   }
 }
