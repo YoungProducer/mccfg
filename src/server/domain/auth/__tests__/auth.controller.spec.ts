@@ -78,6 +78,7 @@ describe('CONTROLLER Auth', () => {
         hash: 'hash',
         salt: 'salt',
         verified: false,
+        refreshTokens: [],
       };
 
       jest.spyOn(authService, 'signUp').mockResolvedValue(userToReturn);

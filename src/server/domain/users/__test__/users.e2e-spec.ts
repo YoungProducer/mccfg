@@ -47,6 +47,10 @@ describe('Users', () => {
   });
 
   describe('POST /users', () => {
+    beforeEach(async () => {
+      await resetRepos(repos);
+    });
+
     it('should create a new user', () => {
       return request(app.getHttpServer())
         .post('/users')

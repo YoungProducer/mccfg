@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ConfigEntity } from '../../config/entities/config.entity';
 import { ConfirmationTokenEntity } from './confirmation-token.entity';
+import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -44,6 +45,11 @@ export class UserEntity {
     cascade: true,
   })
   configs!: ConfigEntity[];
+
+  @OneToMany(() => RefreshTokenEntity, (token) => token.user, {
+    cascade: true,
+  })
+  refreshTokens: RefreshTokenEntity[];
 
   @OneToOne(() => ConfirmationTokenEntity, (token) => token.user, {
     cascade: true,

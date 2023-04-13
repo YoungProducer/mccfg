@@ -47,11 +47,11 @@ describe('E2E Auth', () => {
   });
 
   describe('POST /auth/sign-up', () => {
-    beforeEach(async () => {
-      await resetRepos(repos);
-    });
-
     describe('STATUS 409', () => {
+      afterEach(async () => {
+        await resetRepos(repos);
+      });
+
       it('should return an error if user with given username already exist', async () => {
         const username = 'username';
 
@@ -106,6 +106,10 @@ describe('E2E Auth', () => {
     });
 
     describe('STATUS 200', () => {
+      afterEach(async () => {
+        await resetRepos(repos);
+      });
+
       it('should return a created user', async () => {
         const userData: SignUpDto = {
           email: 'email',

@@ -9,6 +9,7 @@ import { ConfigEntity } from '../config/entities/config.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { ModsController } from './mods.controller';
 import { ConfirmationTokenEntity } from '../users/entities/confirmation-token.entity';
+import { RefreshTokenEntity } from '../tokens/entities/refresh-token.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ConfirmationTokenEntity } from '../users/entities/confirmation-token.en
       ConfigEntity,
       UserEntity,
       ConfirmationTokenEntity,
+      RefreshTokenEntity,
     ]),
     MCVersionModule,
   ],

@@ -80,6 +80,7 @@ describe('UsersController', () => {
         configs: [],
         confirmationToken: null,
         verified: false,
+        refreshTokens: [],
       };
 
       jest
