@@ -21,9 +21,7 @@ export class TokensService {
 
     @InjectRepository(RefreshTokenEntity)
     private refreshTokensRepository: Repository<RefreshTokenEntity>,
-  ) {
-    console.log(jwtService, refreshService, config);
-  }
+  ) {}
 
   public async issueTokensPair(user: UserDto): Promise<[string, string]> {
     const options: SignOptions = {
