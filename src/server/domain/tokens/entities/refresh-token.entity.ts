@@ -10,5 +10,5 @@ export class RefreshTokenEntity {
   token: string;
 
   @ManyToOne(() => UserEntity, (user) => user.refreshTokens)
-  user: Promise<UserEntity>;
+  user: UserEntity;
 }
