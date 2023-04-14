@@ -8,6 +8,7 @@ import { JWTService } from './jwt/jwt.service';
 import { RefreshService } from './refresh/refresh.service';
 import { UserDto } from '../users/dto/user.dto';
 import { SignOptions } from './jwt/interfaces/sign-options.interface';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class TokensService {
@@ -38,7 +39,9 @@ export class TokensService {
   public async refresh(token: string): Promise<[string, string]> {
     const tokenEntity = await this.refreshService.validate(token);
 
-    const tokensPair = await this.issueTokensPair(tokenEntity.user);
+    const tokensPair = await this.issueTokensPair(
+      instanceToPlain(tokenEntity.user) as UserDto,
+    );
 
     await this.refreshTokensRepository.remove(tokenEntity);
 
