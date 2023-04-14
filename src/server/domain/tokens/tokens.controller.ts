@@ -10,7 +10,7 @@ import { plainToInstance } from 'class-transformer';
 export class TokensController {
   constructor(private tokensService: TokensService) {}
 
-  @Post()
+  @Post('/refresh')
   @HttpCode(200)
   @ApiResponse({
     type: RefreshReponseDto,
