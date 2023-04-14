@@ -8,6 +8,7 @@ import { RouterModule } from '@nestjs/core';
 import { MCVersionModule } from 'server/domain/mcversion/mcversion.module';
 import { ModsModule } from 'server/domain/mods/mods.module';
 import { AuthModule } from 'server/domain/auth/auth.module';
+import { TokensModule } from 'server/domain/tokens/tokens.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from 'server/domain/auth/auth.module';
     MCVersionModule,
     ModsModule,
     AuthModule,
+    TokensModule,
     RouterModule.register([
       {
         path: 'api/v1',
@@ -33,6 +35,10 @@ import { AuthModule } from 'server/domain/auth/auth.module';
       {
         path: 'api/v1',
         module: AuthModule,
+      },
+      {
+        path: 'api/v1',
+        module: TokensModule,
       },
     ]),
   ],
