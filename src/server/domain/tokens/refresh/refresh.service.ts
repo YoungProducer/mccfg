@@ -42,6 +42,7 @@ export class RefreshService {
       where: {
         token,
       },
+      relations: ['user'],
     });
 
     if (!entity) {
