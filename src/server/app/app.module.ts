@@ -22,23 +22,13 @@ import { TokensModule } from 'server/domain/tokens/tokens.module';
     RouterModule.register([
       {
         path: 'api/v1',
-        module: UsersModule,
-      },
-      {
-        path: 'api/v1',
-        module: MCVersionModule,
-      },
-      {
-        path: 'api/v1',
-        module: ModsModule,
-      },
-      {
-        path: 'api/v1',
-        module: AuthModule,
-      },
-      {
-        path: 'api/v1',
-        module: TokensModule,
+        children: [
+          UsersModule,
+          MCVersionModule,
+          ModsModule,
+          AuthModule,
+          TokensModule,
+        ],
       },
     ]),
   ],
