@@ -10,6 +10,8 @@ import { UserEntity } from 'server/domain/users/entities/user.entity';
 import { getRepos, resetRepos } from 'server/test-utils/clear-repos';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { SignUpDto } from '../dto/sign-up.dto';
+import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
+import { HttpStatus } from '@nestjs/common';
 
 describe('E2E Auth', () => {
   let app: NestApplication;
@@ -28,7 +30,11 @@ describe('E2E Auth', () => {
       getRepositoryToken(UserEntity),
     );
 
-    repos = getRepos(moduleRef, [UserEntity, ConfirmationTokenEntity]);
+    repos = getRepos(moduleRef, [
+      UserEntity,
+      ConfirmationTokenEntity,
+      RefreshTokenEntity,
+    ]);
 
     await app.init();
   });
@@ -127,6 +133,146 @@ describe('E2E Auth', () => {
 
         expect(user.email).toBe('email');
         expect(user.username).toBe('username');
+      });
+    });
+  });
+
+  describe('POST /auth/sign-in', () => {
+    beforeEach(async () => {
+      await resetRepos(repos);
+    });
+
+    describe('STATUS 401', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return an error if account is not verified', async () => {
+        const username = 'username';
+        const password = 'password';
+
+        const signUpRes = await request(app.getHttpServer())
+          .post('/auth/sign-up')
+          .send({
+            username,
+            password,
+            email: 'email',
+          });
+
+        expect(signUpRes.statusCode).toBe(200);
+
+        const signInRes = await request(app.getHttpServer())
+          .post('/auth/sign-in')
+          .send({
+            username,
+            password,
+          });
+
+        expect(signInRes.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+        expect(signInRes.body.message).toBe(
+          'Account is not verified. Please check your inbox!',
+        );
+      });
+
+      it('should return an error if password is invalid', async () => {
+        const username = 'username';
+        const password = 'password';
+
+        const signUpRes = await request(app.getHttpServer())
+          .post('/auth/sign-up')
+          .send({
+            username,
+            password,
+            email: 'email',
+          });
+
+        expect(signUpRes.statusCode).toBe(200);
+
+        await usersRepo.update(
+          {
+            username,
+          },
+          {
+            verified: true,
+          },
+        );
+
+        const signInRes = await request(app.getHttpServer())
+          .post('/auth/sign-in')
+          .send({
+            username,
+            password: 'pass',
+          });
+
+        expect(signInRes.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+        expect(signInRes.body.message).toBe('Invalid password!');
+      });
+    });
+
+    describe('STATUS 404', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return an error if user does not exist', async () => {
+        const username = 'username';
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/auth/sign-in')
+          .send({
+            username,
+            password: 'password',
+          });
+
+        expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(body.message).toBe(
+          `User with given username: ${username} does not exist!`,
+        );
+      });
+    });
+
+    describe('STATUS 200', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return a user and a pair of tokens', async () => {
+        const username = 'username';
+        const password = 'password';
+
+        const signUpRes = await request(app.getHttpServer())
+          .post('/auth/sign-up')
+          .send({
+            username,
+            password,
+            email: 'email',
+          });
+
+        expect(signUpRes.statusCode).toBe(200);
+
+        await usersRepo.update(
+          {
+            username,
+          },
+          {
+            verified: true,
+          },
+        );
+
+        const signInRes = await request(app.getHttpServer())
+          .post('/auth/sign-in')
+          .send({
+            username,
+            password,
+          });
+
+        const body = signInRes.body;
+        const statusCode = signInRes.statusCode;
+
+        expect(statusCode).toBe(HttpStatus.OK);
+        expect(body).toHaveProperty('user');
+        expect(body).toHaveProperty('accessToken');
+        expect(body).toHaveProperty('refreshToken');
       });
     });
   });
