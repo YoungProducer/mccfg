@@ -15,6 +15,9 @@ export class ConfirmationTokenEntity {
   })
   expirationDate: Date;
 
-  @OneToOne(() => UserEntity, (user) => user.confirmationToken)
+  @OneToOne(() => UserEntity, (user) => user.confirmationToken, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   user!: UserEntity;
 }

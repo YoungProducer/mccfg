@@ -9,6 +9,9 @@ export class RefreshTokenEntity {
   @Column()
   token: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.refreshTokens)
+  @ManyToOne(() => UserEntity, (user) => user.refreshTokens, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   user: UserEntity;
 }
