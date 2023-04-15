@@ -6,22 +6,33 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
 import { UserEntity } from 'server/domain/users/entities/user.entity';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { SignUpResponseDto } from '../dto/sign-up-response.dto';
 import { UserDto } from 'server/domain/users/dto/user.dto';
+import { TokensService } from 'server/domain/tokens/tokens.service';
+import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
+import { ConfigModule } from 'server/config/config.module';
+import { JWTService } from 'server/domain/tokens/jwt/jwt.service';
+import { RefreshService } from 'server/domain/tokens/refresh/refresh.service';
+import { SignInResponseDto } from '../dto/sign-in-response.dto';
 
 describe('CONTROLLER Auth', () => {
   let authController: AuthController;
   let authService: AuthService;
   let usersService: UsersService;
+  let tokensService: TokensService;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ folder: './configs' })],
       controllers: [AuthController],
       providers: [
         AuthService,
         UsersService,
+        TokensService,
+        JWTService,
+        RefreshService,
         {
           provide: getRepositoryToken(ConfirmationTokenEntity),
           useClass: Repository,
@@ -30,12 +41,17 @@ describe('CONTROLLER Auth', () => {
           provide: getRepositoryToken(UserEntity),
           useClass: Repository,
         },
+        {
+          provide: getRepositoryToken(RefreshTokenEntity),
+          useClass: Repository,
+        },
       ],
     }).compile();
 
     authController = moduleRef.get<AuthController>(AuthController);
     authService = moduleRef.get<AuthService>(AuthService);
     usersService = moduleRef.get<UsersService>(UsersService);
+    tokensService = moduleRef.get<TokensService>(TokensService);
   });
 
   beforeEach(() => {
@@ -46,6 +62,7 @@ describe('CONTROLLER Auth', () => {
     expect(authController).toBeDefined();
     expect(authService).toBeDefined();
     expect(usersService).toBeDefined();
+    expect(tokensService).toBeDefined();
   });
 
   describe('API signUp', () => {
@@ -94,6 +111,65 @@ describe('CONTROLLER Auth', () => {
           username: 'username',
         }),
       ).toEqual(expectedValue);
+    });
+  });
+
+  describe('API signIn', () => {
+    it('should throw an error if error occurs', () => {
+      const exception = UnauthorizedException;
+      const errorMsg = 'error';
+
+      jest
+        .spyOn(authService, 'verifyCredentianls')
+        .mockRejectedValue(new exception(errorMsg));
+
+      const call = authController.signIn({
+        password: 'pass',
+        username: 'user',
+      });
+
+      expect(call).rejects.toThrow(exception);
+      expect(call).rejects.toThrowError(errorMsg);
+    });
+
+    it('should return an expected dto if user passed validation', async () => {
+      const userToReturn = <UserEntity>{
+        username: 'username',
+        email: 'email',
+        hash: 'hash',
+        salt: 'salt',
+        id: 1,
+      };
+
+      jest
+        .spyOn(authService, 'verifyCredentianls')
+        .mockResolvedValue(userToReturn);
+
+      const accessToken = 'access';
+      const refreshToken = 'refresh';
+
+      jest
+        .spyOn(tokensService, 'issueTokensPair')
+        .mockResolvedValue([accessToken, refreshToken]);
+
+      const expectedUser: UserDto = {
+        username: userToReturn.username,
+        email: userToReturn.email,
+        id: userToReturn.id,
+      };
+
+      const expected: SignInResponseDto = {
+        accessToken,
+        refreshToken,
+        user: expectedUser,
+      };
+
+      const result = await authController.signIn({
+        password: 'password',
+        username: 'username',
+      });
+
+      expect(result).toEqual(expected);
     });
   });
 });
