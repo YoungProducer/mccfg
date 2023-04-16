@@ -24,7 +24,6 @@ export class JWTService {
     try {
       return await verify(token, secret);
     } catch (e) {
-      console.log({ error: e });
       if (e instanceof JsonWebTokenError) {
         throw new UnauthorizedException('Token is invalid!');
       }
