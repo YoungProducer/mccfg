@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserDto } from 'server/domain/users/dto/user.dto';
 import { sign, verify } from './helpers/jwt-async.helper';
 import { SignOptions } from './interfaces/sign-options.interface';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 @Injectable()
 export class JWTService {
@@ -20,6 +21,19 @@ export class JWTService {
     token: string,
     secret: string,
   ): Promise<T> {
-    return await verify(token, secret);
+    try {
+      return await verify(token, secret);
+    } catch (e) {
+      console.log({ error: e });
+      if (e instanceof JsonWebTokenError) {
+        throw new UnauthorizedException('Token is invalid!');
+      }
+
+      if (e instanceof TokenExpiredError) {
+        throw new UnauthorizedException('Token is expired!');
+      }
+
+      throw new Error(e);
+    }
   }
 }

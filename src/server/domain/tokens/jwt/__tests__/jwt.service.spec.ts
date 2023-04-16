@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { JWTService } from '../jwt.service';
 import { UserDto } from 'server/domain/users/dto/user.dto';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('SERVICE JWT', () => {
   let jwtService: JWTService;
@@ -54,6 +55,7 @@ describe('SERVICE JWT', () => {
   it('should return an error if token is invalid', () => {
     const call = jwtService.verifyToken('dwada.dwad.adad', 'secret');
 
-    expect(call).rejects.toThrow('invalid token');
+    expect(call).rejects.toThrow(UnauthorizedException);
+    expect(call).rejects.toThrowError('Token is invalid!');
   });
 });
