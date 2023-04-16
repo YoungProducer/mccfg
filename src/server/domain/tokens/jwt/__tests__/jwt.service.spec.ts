@@ -58,4 +58,25 @@ describe('SERVICE JWT', () => {
     expect(call).rejects.toThrow(UnauthorizedException);
     expect(call).rejects.toThrowError('Token is invalid!');
   });
+
+  it('should return an error if token is expired', async () => {
+    const secret = 'secret';
+
+    const token = await jwtService.signToken(
+      {
+        email: 'email',
+        id: 1,
+        username: 'username',
+      },
+      {
+        expiresIn: '1ms',
+        secret,
+      },
+    );
+
+    const call = jwtService.verifyToken(token, secret);
+
+    expect(call).rejects.toThrow(UnauthorizedException);
+    expect(call).rejects.toThrowError('Token is expired!');
+  });
 });
