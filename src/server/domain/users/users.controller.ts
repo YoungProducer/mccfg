@@ -1,5 +1,5 @@
 import { Controller, HttpCode, Get, Body, Post, Param } from '@nestjs/common';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { ApiTags, ApiOkResponse, ApiParam } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
@@ -26,10 +26,7 @@ export class UsersController {
   async getAll(): Promise<UserDto[]> {
     const users = await this.usersService.findAll();
 
-    return users.map(
-      (user): UserDto =>
-        instanceToPlain(plainToInstance(UserDto, user)) as UserDto,
-    );
+    return users.map((user): UserDto => plainToInstance(UserDto, user));
   }
 
   @Post('/verify/:token')
