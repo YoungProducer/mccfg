@@ -1,25 +1,33 @@
 import request from 'supertest';
 import { NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { DeepPartial, ObjectLiteral, Repository } from 'typeorm';
 
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { UsersModule } from '../users.module';
 import { UserEntity } from '../entities/user.entity';
-import { DataBaseMockModule } from 'server/mocks/database-module.mock';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { CreateUserData } from '../interfaces';
+import { createTestContainer } from 'server/test-utils/create-test-container';
+import { StartedPostgreSqlContainer } from 'testcontainers';
 
 describe('Users', () => {
+  jest.setTimeout(180_000);
+
+  let pgContainer: StartedPostgreSqlContainer;
   let app: NestApplication;
   let repos: Repository<ObjectLiteral>[];
   let userRepo: Repository<UserEntity>;
   let confirmationsTokensRepo: Repository<ConfirmationTokenEntity>;
 
   beforeAll(async () => {
+    const containerData = await createTestContainer();
+
+    pgContainer = containerData.pgContainer;
+
     const moduleRef = await Test.createTestingModule({
-      imports: [DataBaseMockModule, UsersModule],
+      imports: [TypeOrmModule.forRoot(containerData.options), UsersModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -44,6 +52,7 @@ describe('Users', () => {
   afterAll(async () => {
     await resetRepos(repos);
     await app.close();
+    await pgContainer.stop();
   });
 
   describe('POST /users', () => {

@@ -1,27 +1,40 @@
 import request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { NestApplication } from '@nestjs/core';
 import { ObjectLiteral, Repository } from 'typeorm';
 
 import { AuthModule } from '../auth.module';
-import { DataBaseMockModule } from 'server/mocks/database-module.mock';
 import { UserEntity } from 'server/domain/users/entities/user.entity';
 import { getRepos, resetRepos } from 'server/test-utils/clear-repos';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { SignUpDto } from '../dto/sign-up.dto';
 import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
 import { HttpStatus } from '@nestjs/common';
+import { createTestContainer } from 'server/test-utils/create-test-container';
+import { StartedPostgreSqlContainer } from 'testcontainers';
+import { ConfigModule } from 'server/config/config.module';
 
 describe('E2E Auth', () => {
+  jest.setTimeout(180_000);
+
+  let pgContainer: StartedPostgreSqlContainer;
   let app: NestApplication;
 
   let usersRepo: Repository<UserEntity>;
   let repos: Repository<ObjectLiteral>[];
 
   beforeAll(async () => {
+    const containerData = await createTestContainer();
+
+    pgContainer = containerData.pgContainer;
+
     const moduleRef = await Test.createTestingModule({
-      imports: [AuthModule, DataBaseMockModule],
+      imports: [
+        AuthModule,
+        ConfigModule.forRoot({ folder: './configs' }),
+        TypeOrmModule.forRoot(containerData.options),
+      ],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -46,6 +59,7 @@ describe('E2E Auth', () => {
   afterAll(async () => {
     await resetRepos(repos);
     await app.close();
+    await pgContainer.stop();
   });
 
   it('should be defined', () => {

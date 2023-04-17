@@ -3,29 +3,27 @@ import { NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { MCVersionModule } from '../mcversion.module';
-import { ConfigModule } from 'server/config/config.module';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
-import { getTestDatabaseTypeOrmOptions } from 'server/mocks/test-database';
-import { DI_CONFIG } from 'server/config/constants';
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { MCVersionEntity } from '../entities/mc-version.entity';
+import { StartedPostgreSqlContainer } from 'testcontainers';
+import { createTestContainer } from 'server/test-utils/create-test-container';
 
 describe('E2E MCVersion', () => {
+  jest.setTimeout(180_000);
+
+  let pgContainer: StartedPostgreSqlContainer;
   let app: NestApplication;
   let repos: Repository<ObjectLiteral>[];
   let versionsRepo: Repository<MCVersionEntity>;
 
   beforeAll(async () => {
+    const containerData = await createTestContainer();
+
+    pgContainer = containerData.pgContainer;
+
     const moduleRef = await Test.createTestingModule({
-      imports: [
-        MCVersionModule,
-        ConfigModule.forRoot({ folder: './configs' }),
-        TypeOrmModule.forRootAsync({
-          imports: [ConfigModule],
-          useFactory: getTestDatabaseTypeOrmOptions,
-          inject: [DI_CONFIG],
-        }),
-      ],
+      imports: [MCVersionModule, TypeOrmModule.forRoot(containerData.options)],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -46,6 +44,11 @@ describe('E2E MCVersion', () => {
   afterAll(async () => {
     await resetRepos(repos);
     await app.close();
+    await pgContainer.stop();
+  });
+
+  it('should be defined', () => {
+    expect(app).toBeDefined();
   });
 
   describe('POST /mc-versions', () => {
@@ -66,15 +69,11 @@ describe('E2E MCVersion', () => {
       const entityData = {
         version: '1.0',
       };
-
       const entity = versionsRepo.create(entityData);
-
       await versionsRepo.save(entity);
-
       const res = await request(app.getHttpServer())
         .post('/mc-versions')
         .send(entityData);
-
       expect(res.statusCode).toBe(409);
       expect(res.body.message).toBe(
         'Minecraft with version 1.0 already exist.',

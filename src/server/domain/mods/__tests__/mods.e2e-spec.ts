@@ -7,9 +7,8 @@ import { ModEntity } from '../entities/mod.entity';
 import { MCVersionEntity } from 'server/domain/mcversion/entities/mc-version.entity';
 import { ModVersionEntity } from '../entities/mod-version.entity';
 import { ModsModule } from '../mods.module';
-import { DataBaseMockModule } from 'server/mocks/database-module.mock';
 import { getRepos, resetRepos } from 'server/test-utils/clear-repos';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { UserEntity } from 'server/domain/users/entities/user.entity';
 import { ConfigEntity } from 'server/domain/config/entities/config.entity';
 import { CreateModDto } from '../dto/create-mod.dto';
@@ -17,8 +16,13 @@ import { CreateModVersionDto } from '../dto/create-mod-version.dto';
 import { ModDto } from '../dto/mod.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { GetAllModVersionsResponseDto } from '../dto/mod-version.dto';
+import { createTestContainer } from 'server/test-utils/create-test-container';
+import { StartedPostgreSqlContainer } from 'testcontainers';
 
 describe('E2E Mods', () => {
+  jest.setTimeout(180_000);
+
+  let pgContainer: StartedPostgreSqlContainer;
   let app: NestApplication;
   let repos: Repository<ObjectLiteral>[];
   let modsRepo: Repository<ModEntity>;
@@ -26,8 +30,12 @@ describe('E2E Mods', () => {
   let mcVersionsRepo: Repository<MCVersionEntity>;
 
   beforeAll(async () => {
+    const containerData = await createTestContainer();
+
+    pgContainer = containerData.pgContainer;
+
     const moduleRef = await Test.createTestingModule({
-      imports: [ModsModule, DataBaseMockModule],
+      imports: [ModsModule, TypeOrmModule.forRoot(containerData.options)],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -60,6 +68,7 @@ describe('E2E Mods', () => {
   afterAll(async () => {
     await resetRepos(repos);
     await app.close();
+    await pgContainer.stop();
   });
 
   describe('POST /mods', () => {

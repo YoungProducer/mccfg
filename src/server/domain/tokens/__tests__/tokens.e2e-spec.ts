@@ -2,15 +2,20 @@ import request from 'supertest';
 import { NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { TokensModule } from '../tokens.module';
-import { DataBaseMockModule } from 'server/mocks/database-module.mock';
 import { ObjectLiteral, Repository } from 'typeorm';
 import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { UserEntity } from 'server/domain/users/entities/user.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { HttpStatus } from '@nestjs/common';
+import { createTestContainer } from 'server/test-utils/create-test-container';
+import { StartedPostgreSqlContainer } from 'testcontainers';
+import { ConfigModule } from '../../../config/config.module';
 
 describe('E2E Tokens', () => {
+  jest.setTimeout(180_000);
+
+  let pgContainer: StartedPostgreSqlContainer;
   let app: NestApplication;
 
   let refreshTokensRepo: Repository<RefreshTokenEntity>;
@@ -19,8 +24,16 @@ describe('E2E Tokens', () => {
   let repos: Repository<ObjectLiteral>[];
 
   beforeAll(async () => {
+    const containerData = await createTestContainer();
+
+    pgContainer = containerData.pgContainer;
+
     const moduleRef = await Test.createTestingModule({
-      imports: [TokensModule, DataBaseMockModule],
+      imports: [
+        ConfigModule.forRoot({ folder: './configs' }),
+        TokensModule,
+        TypeOrmModule.forRoot(containerData.options),
+      ],
     }).compile();
 
     refreshTokensRepo = moduleRef.get<Repository<RefreshTokenEntity>>(
@@ -35,6 +48,12 @@ describe('E2E Tokens', () => {
     app = moduleRef.createNestApplication();
 
     await app.init();
+  });
+
+  afterAll(async () => {
+    await resetRepos(repos);
+    await app.close();
+    await pgContainer.stop();
   });
 
   describe('POST /tokens/refresh', () => {
@@ -85,10 +104,5 @@ describe('E2E Tokens', () => {
       expect(body.refreshToken).toBeDefined();
       expect(body.accessToken).toEqual(expect.stringContaining('Bearer '));
     });
-  });
-
-  afterAll(async () => {
-    await resetRepos(repos);
-    await app.close();
   });
 });
