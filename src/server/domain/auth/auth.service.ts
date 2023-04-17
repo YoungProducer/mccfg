@@ -13,6 +13,7 @@ import { comparePasswords, hashPassword } from 'server/lib/password-hasher';
 import { CreateUserData } from '../users/interfaces';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { SignInCredentials } from './interfaces/sign-in-credentials.interface';
+import { authErrorMessages } from './constants/error-messages';
 
 @Injectable()
 export class AuthService {
@@ -57,13 +58,13 @@ export class AuthService {
 
     if (!userEntity) {
       throw new NotFoundException(
-        `User with given username: ${credentials.username} does not exist!`,
+        authErrorMessages.getUserNameNotExistErr(credentials.username),
       );
     }
 
     if (!userEntity.verified) {
       throw new UnauthorizedException(
-        'Account is not verified. Please check your inbox!',
+        authErrorMessages.getAccountNotVerifiedErr(),
       );
     }
 
@@ -74,7 +75,7 @@ export class AuthService {
     });
 
     if (!matches) {
-      throw new UnauthorizedException('Invalid password!');
+      throw new UnauthorizedException(authErrorMessages.getInvalidPassErr());
     }
 
     return userEntity;

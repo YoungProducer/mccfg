@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from 'server/domain/users/entities/user.entity';
 import { SignUpCredentials } from '../interfaces/sign-up-credentials.interface';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { authErrorMessages } from '../constants/error-messages';
 
 describe('SERVICE Auth', () => {
   let authService: AuthService;
@@ -92,7 +93,7 @@ describe('SERVICE Auth', () => {
 
       expect(call).rejects.toThrow(NotFoundException);
       expect(call).rejects.toThrowError(
-        `User with given username: ${username} does not exist!`,
+        authErrorMessages.getUserNameNotExistErr(username),
       );
     });
 
@@ -108,7 +109,7 @@ describe('SERVICE Auth', () => {
 
       expect(call).rejects.toThrow(UnauthorizedException);
       expect(call).rejects.toThrowError(
-        'Account is not verified. Please check your inbox!',
+        authErrorMessages.getAccountNotVerifiedErr(),
       );
     });
 
@@ -128,7 +129,7 @@ describe('SERVICE Auth', () => {
       });
 
       expect(call).rejects.toThrow(UnauthorizedException);
-      expect(call).rejects.toThrowError('Invalid password!');
+      expect(call).rejects.toThrowError(authErrorMessages.getInvalidPassErr());
     });
 
     it('should return user entity if credentials are valid', async () => {

@@ -14,6 +14,8 @@ import { HttpStatus } from '@nestjs/common';
 import { createTestContainer } from 'server/test-utils/create-test-container';
 import { StartedPostgreSqlContainer } from 'testcontainers';
 import { ConfigModule } from 'server/config/config.module';
+import { authErrorMessages } from '../constants/error-messages';
+import { userErrorMessages } from 'server/domain/users/constants/error-messages';
 
 describe('E2E Auth', () => {
   jest.setTimeout(180_000);
@@ -94,8 +96,10 @@ describe('E2E Auth', () => {
           .post('/auth/sign-up')
           .send(userData);
 
-        expect(statusCode).toBe(409);
-        expect(body.message).toBe(`Username ${username} is already taken!`);
+        expect(statusCode).toBe(HttpStatus.CONFLICT);
+        expect(body.message).toBe(
+          userErrorMessages.getUsernameAlreadyTakenErr(username),
+        );
       });
 
       it('should return an error if user with given email already exist', async () => {
@@ -120,8 +124,10 @@ describe('E2E Auth', () => {
           .post('/auth/sign-up')
           .send(userData);
 
-        expect(statusCode).toBe(409);
-        expect(body.message).toBe(`Email ${email} is already taken!`);
+        expect(statusCode).toBe(HttpStatus.CONFLICT);
+        expect(body.message).toBe(
+          userErrorMessages.getEmailAlreadyTakenErr(email),
+        );
       });
     });
 
@@ -141,7 +147,7 @@ describe('E2E Auth', () => {
           .post('/auth/sign-up')
           .send(userData);
 
-        expect(statusCode).toBe(200);
+        expect(statusCode).toBe(HttpStatus.OK);
 
         const user = body.user;
 
@@ -173,7 +179,7 @@ describe('E2E Auth', () => {
             email: 'email',
           });
 
-        expect(signUpRes.statusCode).toBe(200);
+        expect(signUpRes.statusCode).toBe(HttpStatus.OK);
 
         const signInRes = await request(app.getHttpServer())
           .post('/auth/sign-in')
@@ -184,7 +190,7 @@ describe('E2E Auth', () => {
 
         expect(signInRes.statusCode).toBe(HttpStatus.UNAUTHORIZED);
         expect(signInRes.body.message).toBe(
-          'Account is not verified. Please check your inbox!',
+          authErrorMessages.getAccountNotVerifiedErr(),
         );
       });
 
@@ -200,7 +206,7 @@ describe('E2E Auth', () => {
             email: 'email',
           });
 
-        expect(signUpRes.statusCode).toBe(200);
+        expect(signUpRes.statusCode).toBe(HttpStatus.OK);
 
         await usersRepo.update(
           {
@@ -219,7 +225,9 @@ describe('E2E Auth', () => {
           });
 
         expect(signInRes.statusCode).toBe(HttpStatus.UNAUTHORIZED);
-        expect(signInRes.body.message).toBe('Invalid password!');
+        expect(signInRes.body.message).toBe(
+          authErrorMessages.getInvalidPassErr(),
+        );
       });
     });
 
@@ -240,7 +248,7 @@ describe('E2E Auth', () => {
 
         expect(statusCode).toBe(HttpStatus.NOT_FOUND);
         expect(body.message).toBe(
-          `User with given username: ${username} does not exist!`,
+          authErrorMessages.getUserNameNotExistErr(username),
         );
       });
     });
@@ -262,7 +270,7 @@ describe('E2E Auth', () => {
             email: 'email',
           });
 
-        expect(signUpRes.statusCode).toBe(200);
+        expect(signUpRes.statusCode).toBe(HttpStatus.OK);
 
         await usersRepo.update(
           {
