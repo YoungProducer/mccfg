@@ -11,6 +11,8 @@ import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { CreateUserData } from '../interfaces';
 import { createTestContainer } from 'server/test-utils/create-test-container';
 import { StartedPostgreSqlContainer } from 'testcontainers';
+import { userErrorMessages } from '../constants/error-messages';
+import { HttpStatus } from '@nestjs/common';
 
 describe('Users', () => {
   jest.setTimeout(180_000);
@@ -95,8 +97,10 @@ describe('Users', () => {
           .post('/users')
           .send(data);
 
-        expect(statusCode).toBe(409);
-        expect(body.message).toBe(`Username ${username} is already taken!`);
+        expect(statusCode).toBe(HttpStatus.CONFLICT);
+        expect(body.message).toBe(
+          userErrorMessages.getUsernameAlreadyTakenErr(username),
+        );
       });
 
       it('should return an error if user with given "email" already exist', async () => {
@@ -120,8 +124,10 @@ describe('Users', () => {
           .post('/users')
           .send(data);
 
-        expect(statusCode).toBe(409);
-        expect(body.message).toBe(`Email ${email} is already taken!`);
+        expect(statusCode).toBe(HttpStatus.CONFLICT);
+        expect(body.message).toBe(
+          userErrorMessages.getEmailAlreadyTakenErr(email),
+        );
       });
 
       it('should reutrn an error if user with both "email" and "username" already exist', async () => {
@@ -143,8 +149,10 @@ describe('Users', () => {
           .post('/users')
           .send(data);
 
-        expect(statusCode).toBe(409);
-        expect(body.message).toBe(`Username ${username} is already taken!`);
+        expect(statusCode).toBe(HttpStatus.CONFLICT);
+        expect(body.message).toBe(
+          userErrorMessages.getUsernameAlreadyTakenErr(username),
+        );
       });
     });
   });
@@ -172,7 +180,7 @@ describe('Users', () => {
 
       const body = res.body;
 
-      expect(res.statusCode).toBe(200);
+      expect(res.statusCode).toBe(HttpStatus.OK);
       expect(body).toHaveLength(1);
 
       const user = body[0];
@@ -193,8 +201,8 @@ describe('Users', () => {
           .post('/users/verify/token')
           .send();
 
-        expect(statusCode).toBe(404);
-        expect(body.message).toBe('Token is invalid!');
+        expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(body.message).toBe(userErrorMessages.getConfTokenInvalidErr());
       });
     });
 
@@ -218,8 +226,8 @@ describe('Users', () => {
           .post(`/users/verify/${token}`)
           .send();
 
-        expect(statusCode).toBe(400);
-        expect(body.message).toBe('Token has no binded user!');
+        expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(body.message).toBe(userErrorMessages.getConfTokenNoUserErr());
       });
 
       it('should return an error if token is expired', async () => {
@@ -247,8 +255,8 @@ describe('Users', () => {
           .post(`/users/verify/${token}`)
           .send();
 
-        expect(statusCode).toBe(400);
-        expect(body.message).toBe('Token is expired!');
+        expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+        expect(body.message).toBe(userErrorMessages.getConfTokenExpiredErr());
       });
     });
 
@@ -281,7 +289,7 @@ describe('Users', () => {
           .post(`/users/verify/${token}`)
           .send();
 
-        expect(statusCode).toBe(200);
+        expect(statusCode).toBe(HttpStatus.OK);
 
         const updatedUserEntity = await userRepo.findOne({
           where: {

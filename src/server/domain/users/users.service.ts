@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { CreateUserData } from './interfaces';
 import { ConfirmationTokenEntity } from './entities/confirmation-token.entity';
+import { userErrorMessages } from './constants/error-messages';
 
 @Injectable()
 export class UsersService {
@@ -28,12 +29,14 @@ export class UsersService {
 
     if (existingUser?.username === data.username) {
       throw new ConflictException(
-        `Username ${data.username} is already taken!`,
+        userErrorMessages.getUsernameAlreadyTakenErr(data.username),
       );
     }
 
     if (existingUser?.email === data.email) {
-      throw new ConflictException(`Email ${data.email} is already taken!`);
+      throw new ConflictException(
+        userErrorMessages.getEmailAlreadyTakenErr(data.email),
+      );
     }
 
     const user = this.usersRepository.create({
@@ -59,17 +62,17 @@ export class UsersService {
     });
 
     if (!tokenEntity) {
-      throw new NotFoundException('Token is invalid!');
+      throw new NotFoundException(userErrorMessages.getConfTokenInvalidErr());
     }
 
     const user = tokenEntity.user;
 
     if (!tokenEntity.user) {
-      throw new BadRequestException('Token has no binded user!');
+      throw new BadRequestException(userErrorMessages.getConfTokenNoUserErr());
     }
 
     if (Number(Date.now()) > Number(tokenEntity.expirationDate)) {
-      throw new BadRequestException('Token is expired!');
+      throw new BadRequestException(userErrorMessages.getConfTokenExpiredErr());
     }
 
     user.verified = true;

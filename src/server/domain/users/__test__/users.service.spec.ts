@@ -10,6 +10,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { CreateUserData } from '../interfaces';
+import { userErrorMessages } from '../constants/error-messages';
 
 describe('SERVICE Users', () => {
   let userService: UsersService;
@@ -67,7 +68,7 @@ describe('SERVICE Users', () => {
 
       expect(call).rejects.toThrow(ConflictException);
       expect(call).rejects.toThrowError(
-        `Username ${username} is already taken!`,
+        userErrorMessages.getUsernameAlreadyTakenErr(username),
       );
     });
 
@@ -84,7 +85,9 @@ describe('SERVICE Users', () => {
       });
 
       expect(call).rejects.toThrow(ConflictException);
-      expect(call).rejects.toThrowError(`Email ${email} is already taken!`);
+      expect(call).rejects.toThrowError(
+        userErrorMessages.getEmailAlreadyTakenErr(email),
+      );
     });
 
     it('should return created user if there are no erros', async () => {
@@ -116,7 +119,9 @@ describe('SERVICE Users', () => {
       const call = userService.verify('token');
 
       expect(call).rejects.toThrow(NotFoundException);
-      expect(call).rejects.toThrowError('Token is invalid!');
+      expect(call).rejects.toThrowError(
+        userErrorMessages.getConfTokenInvalidErr(),
+      );
     });
 
     it('should return BadRequestException if token has no related users', () => {
@@ -130,7 +135,9 @@ describe('SERVICE Users', () => {
       const call = userService.verify('token');
 
       expect(call).rejects.toThrow(BadRequestException);
-      expect(call).rejects.toThrowError('Token has no binded user!');
+      expect(call).rejects.toThrowError(
+        userErrorMessages.getConfTokenNoUserErr(),
+      );
     });
 
     it('should return BadRequestException if token is expired', () => {
@@ -144,7 +151,9 @@ describe('SERVICE Users', () => {
       const call = userService.verify('token');
 
       expect(call).rejects.toThrow(BadRequestException);
-      expect(call).rejects.toThrowError('Token is expired!');
+      expect(call).rejects.toThrowError(
+        userErrorMessages.getConfTokenExpiredErr(),
+      );
     });
 
     it('should remove confirmation token and update user if there are no errors', async () => {
