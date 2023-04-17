@@ -8,6 +8,7 @@ import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'server/domain/users/users.service';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+import { refreshErrorMessages } from './constants/error-messages';
 
 @Injectable()
 export class RefreshService {
@@ -22,7 +23,9 @@ export class RefreshService {
     const user = await this.usersService.findOneById(userId);
 
     if (!user) {
-      throw new NotFoundException(`User with id: ${userId} not found!`);
+      throw new NotFoundException(
+        refreshErrorMessages.getUserNotFoundErr(userId),
+      );
     }
 
     const token = randomStringGenerator();
@@ -46,7 +49,9 @@ export class RefreshService {
     });
 
     if (!entity) {
-      throw new UnauthorizedException('Invalid refresh token!');
+      throw new UnauthorizedException(
+        refreshErrorMessages.getInvalidTokenErr(),
+      );
     }
 
     return entity;

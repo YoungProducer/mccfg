@@ -7,6 +7,7 @@ import { RefreshTokenEntity } from '../../entities/refresh-token.entity';
 import { UsersService } from 'server/domain/users/users.service';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { refreshErrorMessages } from '../constants/error-messages';
 
 jest.mock('@nestjs/common/utils/random-string-generator.util', () => ({
   randomStringGenerator: () => 'token',
@@ -67,7 +68,9 @@ describe('SERVICE Refresh', () => {
       const call = refreshService.create(id);
 
       expect(call).rejects.toThrow(NotFoundException);
-      expect(call).rejects.toThrowError(`User with id: ${id} not found!`);
+      expect(call).rejects.toThrowError(
+        refreshErrorMessages.getUserNotFoundErr(id),
+      );
     });
 
     it('should return a created token if there are no errors', async () => {
@@ -88,7 +91,9 @@ describe('SERVICE Refresh', () => {
       const call = refreshService.validate('token');
 
       expect(call).rejects.toThrow(UnauthorizedException);
-      expect(call).rejects.toThrowError('Invalid refresh token!');
+      expect(call).rejects.toThrowError(
+        refreshErrorMessages.getInvalidTokenErr(),
+      );
     });
 
     it('should return a token entity if token is valud', async () => {
