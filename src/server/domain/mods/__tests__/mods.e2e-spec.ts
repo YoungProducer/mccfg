@@ -18,6 +18,8 @@ import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { GetAllModVersionsResponseDto } from '../dto/mod-version.dto';
 import { createTestContainer } from 'server/test-utils/create-test-container';
 import { StartedPostgreSqlContainer } from 'testcontainers';
+import { HttpStatus } from '@nestjs/common';
+import { modErrorMessages } from '../constants/error-messages';
 
 describe('E2E Mods', () => {
   jest.setTimeout(180_000);
@@ -96,8 +98,8 @@ describe('E2E Mods', () => {
         .post('/mods')
         .send(createDto);
 
-      expect(res.statusCode).toBe(409);
-      expect(res.body.message).toBe(`Mod with name: ${name} already exist.`);
+      expect(res.statusCode).toBe(HttpStatus.CONFLICT);
+      expect(res.body.message).toBe(modErrorMessages.getModNameExistErr(name));
     });
   });
 
@@ -127,9 +129,9 @@ describe('E2E Mods', () => {
         .post(`/mods/1/versions`)
         .send(createDto);
 
-      expect(res.statusCode).toBe(409);
+      expect(res.statusCode).toBe(HttpStatus.CONFLICT);
       expect(res.body.message).toBe(
-        `Mod with version: ${modVersion} already exist.`,
+        modErrorMessages.getModVersionExistErr(modVersion),
       );
     });
 
@@ -153,9 +155,9 @@ describe('E2E Mods', () => {
           .post(`/mods/1/versions`)
           .send(createDto);
 
-        expect(res.statusCode).toBe(404);
+        expect(res.statusCode).toBe(HttpStatus.NOT_FOUND);
         expect(res.body.message).toBe(
-          `Minecraft version: ${mcVersion} doesn't exist.`,
+          modErrorMessages.getMCVersionNotExistErr(mcVersion),
         );
       });
 
@@ -185,7 +187,7 @@ describe('E2E Mods', () => {
           .post(`/mods/${mod.id}/versions`)
           .send(createModVersionDto);
 
-        expect(res.status).toBe(201);
+        expect(res.status).toBe(HttpStatus.CREATED);
       });
     });
 
@@ -212,9 +214,9 @@ describe('E2E Mods', () => {
           .post(`/mods/1/versions`)
           .send(createDto);
 
-        expect(res.statusCode).toBe(404);
+        expect(res.statusCode).toBe(HttpStatus.NOT_FOUND);
         expect(res.body.message).toBe(
-          `Following versions of minecraft: 2.0 do not exist.`,
+          modErrorMessages.getMultipleMCVersionsNotExistErr('2.0'),
         );
       });
 
@@ -244,7 +246,7 @@ describe('E2E Mods', () => {
           .post(`/mods/${mod.id}/versions`)
           .send(createModVersionDto);
 
-        expect(res.status).toBe(201);
+        expect(res.status).toBe(HttpStatus.CREATED);
       });
     });
   });
@@ -265,7 +267,7 @@ describe('E2E Mods', () => {
         '/mods',
       );
 
-      expect(statusCode).toBe(200);
+      expect(statusCode).toBe(HttpStatus.OK);
       expect(body).toEqual([createdModEntity]);
     });
 
@@ -302,7 +304,7 @@ describe('E2E Mods', () => {
         `/mods?versions=true`,
       );
 
-      expect(statusCode).toBe(200);
+      expect(statusCode).toBe(HttpStatus.OK);
       expect(body).toEqual([expected]);
     });
   });
@@ -338,14 +340,14 @@ describe('E2E Mods', () => {
             `/mods/${createdModEntity.id}`,
           );
 
-          expect(res1.statusCode).toBe(200);
+          expect(res1.statusCode).toBe(HttpStatus.OK);
           expect(res1.body).toEqual(expected);
 
           const res2 = await request(app.getHttpServer()).get(
             `/mods/${createdModEntity.id}?versions=false`,
           );
 
-          expect(res2.statusCode).toBe(200);
+          expect(res2.statusCode).toBe(HttpStatus.OK);
           expect(res2.body).toEqual(expected);
         });
       });
@@ -385,7 +387,7 @@ describe('E2E Mods', () => {
             `/mods/${createdModEntity.id}?versions=true`,
           );
 
-          expect(statusCode).toBe(200);
+          expect(statusCode).toBe(HttpStatus.OK);
           expect(body).toEqual(expected);
         });
       });
@@ -427,7 +429,7 @@ describe('E2E Mods', () => {
           `/mods/${createdModEntity.id}/versions`,
         );
 
-        expect(statusCode).toBe(200);
+        expect(statusCode).toBe(HttpStatus.OK);
         expect(body).toEqual([expected]);
       });
     });
@@ -468,7 +470,7 @@ describe('E2E Mods', () => {
           `/mods/versions/${createdModVersionEntity.id}`,
         );
 
-        expect(statusCode).toBe(200);
+        expect(statusCode).toBe(HttpStatus.OK);
         expect(body).toEqual(expected);
       });
     });

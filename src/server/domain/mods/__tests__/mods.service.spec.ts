@@ -10,6 +10,7 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { getCreateQueryBuilderMock } from 'server/mocks/create-query-builder.mock';
 import { MCVersionService } from 'server/domain/mcversion/mcversion.service';
 import { FindModOptionsInterface } from '../interfaces/find-mod.inteface';
+import { modErrorMessages } from '../constants/error-messages';
 
 describe('SERVICE Mods', () => {
   let modsService: ModsService;
@@ -98,7 +99,7 @@ describe('SERVICE Mods', () => {
 
       expect(call).rejects.toThrow(ConflictException);
       expect(call).rejects.toThrowError(
-        `Mod with name: ${name} already exist.`,
+        modErrorMessages.getModNameExistErr(name),
       );
     });
   });
@@ -127,7 +128,9 @@ describe('SERVICE Mods', () => {
       });
 
       expect(call).rejects.toThrow(NotFoundException);
-      expect(call).rejects.toThrowError(`Mod with id: ${modId} doesn't exist.`);
+      expect(call).rejects.toThrowError(
+        modErrorMessages.getModIdNotExistErr(modId),
+      );
     });
 
     describe(`WHEN typeof compatibleMCVersions is string`, () => {
@@ -149,7 +152,7 @@ describe('SERVICE Mods', () => {
 
         expect(call).rejects.toThrow(NotFoundException);
         expect(call).rejects.toThrowError(
-          `Minecraft version: ${version} doesn't exist.`,
+          modErrorMessages.getMCVersionNotExistErr(version),
         );
       });
     });
@@ -162,20 +165,26 @@ describe('SERVICE Mods', () => {
             version: '1.0',
           },
         ];
+
         jest
           .spyOn(mcVersionsRepository, 'createQueryBuilder')
           .mockImplementation(() =>
             getCreateQueryBuilderMock(returnedVersions),
           );
+
         jest
           .spyOn(modVersionsRepository, 'findOne')
           .mockResolvedValue(undefined);
+
         const call = modsService.createModVersion({
           modId: 1,
           version: '1.0',
           compatibleMCVersion: versions,
         });
-        const expectedErrorMessage = `Following versions of minecraft: 2.0 do not exist.`;
+
+        const expectedErrorMessage =
+          modErrorMessages.getMultipleMCVersionsNotExistErr('2.0');
+
         expect(call).rejects.toThrow(NotFoundException);
         expect(call).rejects.toThrowError(expectedErrorMessage);
       });

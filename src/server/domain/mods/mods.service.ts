@@ -12,6 +12,7 @@ import { MCVersionEntity } from '../mcversion/entities/mc-version.entity';
 import { CreateModPayload } from './interfaces/create-mod.interface';
 import { MCVersionService } from '../mcversion/mcversion.service';
 import { FindModOptionsInterface } from './interfaces/find-mod.inteface';
+import { modErrorMessages } from './constants/error-messages';
 
 @Injectable()
 export class ModsService {
@@ -34,7 +35,7 @@ export class ModsService {
 
     if (existingModEntity) {
       throw new ConflictException(
-        `Mod with name: ${payload.name} already exist.`,
+        modErrorMessages.getModNameExistErr(payload.name),
       );
     }
 
@@ -56,7 +57,7 @@ export class ModsService {
 
     if (existingModVersion) {
       throw new ConflictException(
-        `Mod with version: ${payload.version} already exist.`,
+        modErrorMessages.getModVersionExistErr(payload.version),
       );
     }
 
@@ -96,7 +97,9 @@ export class ModsService {
           .join(', ');
 
         throw new NotFoundException(
-          `Following versions of minecraft: ${notFoundVersionsString} do not exist.`,
+          modErrorMessages.getMultipleMCVersionsNotExistErr(
+            notFoundVersionsString,
+          ),
         );
       }
     }
@@ -109,7 +112,7 @@ export class ModsService {
 
       if (!mcVersionEntity) {
         throw new NotFoundException(
-          `Minecraft version: ${payload.compatibleMCVersion} doesn't exist.`,
+          modErrorMessages.getMCVersionNotExistErr(payload.compatibleMCVersion),
         );
       }
 
@@ -125,7 +128,7 @@ export class ModsService {
 
     if (!modEntity) {
       throw new NotFoundException(
-        `Mod with id: ${payload.modId} doesn't exist.`,
+        modErrorMessages.getModIdNotExistErr(payload.modId),
       );
     }
 
