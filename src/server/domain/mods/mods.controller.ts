@@ -19,7 +19,7 @@ import {
   GetAllModVersionsResponseDto,
   GetModVersionResponseDto,
 } from './dto/mod-version.dto';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { GetAllModsQueryDto } from './dto/get-all-mods-query.dto';
 import { GetModQueryDto } from './dto/get-mod-query.dto';
 
@@ -72,9 +72,7 @@ export class ModsController {
       },
     });
 
-    return res.map(
-      (entity) => instanceToPlain(plainToInstance(ModDto, entity)) as ModDto,
-    );
+    return res.map((entity) => plainToInstance(ModDto, entity));
   }
 
   @Get(':id')
@@ -101,7 +99,7 @@ export class ModsController {
       },
     });
 
-    return instanceToPlain(plainToInstance(ModDto, res)) as ModDto;
+    return plainToInstance(ModDto, res);
   }
 
   @Get(':id/versions')
@@ -119,11 +117,8 @@ export class ModsController {
   ): Promise<GetAllModVersionsResponseDto[]> {
     const res = await this.modsService.getAllModVersions(id);
 
-    return res.map(
-      (entity) =>
-        instanceToPlain(
-          plainToInstance(GetAllModVersionsResponseDto, entity),
-        ) as GetAllModVersionsResponseDto,
+    return res.map((entity) =>
+      plainToInstance(GetAllModVersionsResponseDto, entity),
     );
   }
 
@@ -140,8 +135,6 @@ export class ModsController {
     @Param('versionId', ParseIntPipe) modVersionId: number,
   ): Promise<GetModVersionResponseDto> {
     const res = await this.modsService.findModVersion(modVersionId);
-    return instanceToPlain(
-      plainToInstance(GetModVersionResponseDto, res),
-    ) as GetModVersionResponseDto;
+    return plainToInstance(GetModVersionResponseDto, res);
   }
 }
