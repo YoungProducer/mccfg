@@ -9,7 +9,7 @@ describe('GUARD Roles', () => {
   it('should throw UnauthorizedException if user object missing in query', () => {
     const mockReflector = createMock<Reflector>();
 
-    mockReflector.get.mockReturnValue([]);
+    mockReflector.get.mockReturnValue(['admin']);
 
     const mockContext = createMock<ExecutionContext>();
 
@@ -104,6 +104,48 @@ describe('GUARD Roles', () => {
         role: 'admin',
       },
     });
+
+    expect(await guard.canActivate(mockContext)).toBeTruthy();
+  });
+
+  it('should return "true" if roles array is "undefined"', async () => {
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(undefined);
+
+    const mockContext = createMock<ExecutionContext>();
+
+    mockContext.switchToHttp().getRequest.mockReturnValue({});
+
+    const guard = new RolesGuard(mockReflector);
+
+    expect(await guard.canActivate(mockContext)).toBeTruthy();
+  });
+
+  it('should return "true" if roles array is empty', async () => {
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue([]);
+
+    const mockContext = createMock<ExecutionContext>();
+
+    mockContext.switchToHttp().getRequest.mockReturnValue({});
+
+    const guard = new RolesGuard(mockReflector);
+
+    expect(await guard.canActivate(mockContext)).toBeTruthy();
+  });
+
+  it('should return "true" if roles array has ', async () => {
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue([]);
+
+    const mockContext = createMock<ExecutionContext>();
+
+    mockContext.switchToHttp().getRequest.mockReturnValue({});
+
+    const guard = new RolesGuard(mockReflector);
 
     expect(await guard.canActivate(mockContext)).toBeTruthy();
   });

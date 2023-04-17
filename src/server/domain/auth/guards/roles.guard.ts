@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { UserDto } from 'server/domain/users/dto/user.dto';
 import { rolesErrorMessages } from './constants/error-messages';
+import { UserRoles } from 'server/domain/users/entities/user.entity';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -16,7 +17,14 @@ export class RolesGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
 
-    const roles = this.reflector.get<string[]>('roles', context.getHandler());
+    const roles = this.reflector.get<UserRoles[]>(
+      'roles',
+      context.getHandler(),
+    );
+
+    if (!roles || roles.length === 0) {
+      return true;
+    }
 
     return await this.validate(request, roles);
   }
