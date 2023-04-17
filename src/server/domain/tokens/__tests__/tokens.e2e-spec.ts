@@ -11,6 +11,7 @@ import { HttpStatus } from '@nestjs/common';
 import { createTestContainer } from 'server/test-utils/create-test-container';
 import { StartedPostgreSqlContainer } from 'testcontainers';
 import { ConfigModule } from '../../../config/config.module';
+import { refreshErrorMessages } from '../refresh/constants/error-messages';
 
 describe('E2E Tokens', () => {
   jest.setTimeout(180_000);
@@ -69,7 +70,7 @@ describe('E2E Tokens', () => {
         });
 
       expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
-      expect(body.message).toBe(`Invalid refresh token!`);
+      expect(body.message).toBe(refreshErrorMessages.getInvalidTokenErr());
     });
 
     it('should a tokens pair if refresh token has passed validation', async () => {
