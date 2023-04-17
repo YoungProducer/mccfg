@@ -3,6 +3,7 @@ import { JWTService } from '../jwt.service';
 import { UserDto } from 'server/domain/users/dto/user.dto';
 import { UnauthorizedException } from '@nestjs/common';
 import { jwtErrorMessages } from '../constants/error-messages';
+import { UserRoles } from 'server/domain/users/entities/user.entity';
 
 describe('SERVICE JWT', () => {
   let jwtService: JWTService;
@@ -24,6 +25,7 @@ describe('SERVICE JWT', () => {
       email: 'email',
       id: 1,
       username: 'username',
+      role: UserRoles.READ,
     };
 
     const token = await jwtService.signToken(data, {
@@ -41,6 +43,7 @@ describe('SERVICE JWT', () => {
       email: 'email',
       id: 1,
       username: 'username',
+      role: UserRoles.READ,
     };
 
     const token = await jwtService.signToken(data, {

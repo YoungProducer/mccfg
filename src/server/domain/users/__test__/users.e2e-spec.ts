@@ -6,7 +6,7 @@ import { DeepPartial, ObjectLiteral, Repository } from 'typeorm';
 
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { UsersModule } from '../users.module';
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity, UserRoles } from '../entities/user.entity';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { CreateUserData } from '../interfaces';
 import { createTestContainer } from 'server/test-utils/create-test-container';
@@ -58,20 +58,70 @@ describe('Users', () => {
   });
 
   describe('POST /users', () => {
-    beforeEach(async () => {
-      await resetRepos(repos);
-    });
+    describe('STATUS 201', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
 
-    it('should create a new user', () => {
-      return request(app.getHttpServer())
-        .post('/users')
-        .send({
-          username: 'username',
-          email: 'email@email',
-          hash: 'hash',
-          salt: 'salt',
-        })
-        .expect(201);
+      it('should create a new user', () => {
+        return request(app.getHttpServer())
+          .post('/users')
+          .send({
+            username: 'username',
+            email: 'email@email',
+            hash: 'hash',
+            salt: 'salt',
+          })
+          .expect(HttpStatus.CREATED);
+      });
+
+      it('should grant a READ role by default', async () => {
+        const username = 'username';
+
+        const { statusCode } = await request(app.getHttpServer())
+          .post('/users')
+          .send({
+            username,
+            email: 'email@email',
+            hash: 'hash',
+            salt: 'salt',
+          });
+
+        expect(statusCode).toBe(HttpStatus.CREATED);
+
+        const createdUser = await userRepo.findOne({
+          where: {
+            username,
+          },
+        });
+
+        expect(createdUser.role).toBe(UserRoles.READ);
+      });
+
+      it('should create a user with a proper role', async () => {
+        const username = 'username';
+        const role = UserRoles.ADMIN;
+
+        const { statusCode } = await request(app.getHttpServer())
+          .post('/users')
+          .send({
+            username,
+            email: 'email@email',
+            hash: 'hash',
+            salt: 'salt',
+            role,
+          });
+
+        expect(statusCode).toBe(HttpStatus.CREATED);
+
+        const createdUser = await userRepo.findOne({
+          where: {
+            username,
+          },
+        });
+
+        expect(createdUser.role).toBe(role);
+      });
     });
 
     describe('STATUS 409', () => {
@@ -265,7 +315,7 @@ describe('Users', () => {
         await resetRepos(repos);
       });
 
-      it('should updated user and delete token if data is correct', async () => {
+      it('should update user and delete token if data is correct', async () => {
         const userEntityToCreate = userRepo.create({
           username: 'username',
           email: 'email@email',

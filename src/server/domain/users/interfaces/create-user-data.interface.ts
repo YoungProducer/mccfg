@@ -1,6 +1,6 @@
 import { UserEntity } from '../entities/user.entity';
 
-export type CreateUserData = Pick<
-  UserEntity,
-  'email' | 'username' | 'salt' | 'hash'
->;
+export interface CreateUserData
+  extends Pick<UserEntity, 'email' | 'username' | 'salt' | 'hash'> {
+  role?: UserEntity['role'];
+}

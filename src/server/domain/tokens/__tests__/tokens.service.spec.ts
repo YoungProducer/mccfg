@@ -7,7 +7,10 @@ import { RefreshTokenEntity } from '../entities/refresh-token.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { ConfigModule } from 'server/config/config.module';
 import { UsersService } from 'server/domain/users/users.service';
-import { UserEntity } from 'server/domain/users/entities/user.entity';
+import {
+  UserEntity,
+  UserRoles,
+} from 'server/domain/users/entities/user.entity';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 
@@ -73,6 +76,7 @@ describe('SERVICE Tokens', () => {
           email: 'email',
           id: 1,
           username: 'user',
+          role: UserRoles.READ,
         },
       );
 
@@ -92,6 +96,7 @@ describe('SERVICE Tokens', () => {
         email: 'email',
         id: 1,
         username: 'user',
+        role: UserRoles.READ,
       });
 
       expect(call).rejects.toThrow(ConflictException);

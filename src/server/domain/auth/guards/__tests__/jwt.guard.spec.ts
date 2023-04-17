@@ -4,6 +4,7 @@ import { EnvConfig } from 'server/config/interfaces';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { createMock } from '@golevelup/ts-jest';
 import { UserDto } from 'server/domain/users/dto/user.dto';
+import { UserRoles } from 'server/domain/users/entities/user.entity';
 
 describe('GUARD JWT', () => {
   let jwtGuard: JWTGuard;
@@ -99,6 +100,7 @@ describe('GUARD JWT', () => {
       email: 'email',
       id: 1,
       username: 'username',
+      role: UserRoles.READ,
     };
 
     const token = await jwtService.signToken(userData, {

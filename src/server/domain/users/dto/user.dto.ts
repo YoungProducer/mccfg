@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose } from 'class-transformer';
 import { IsString } from 'class-validator';
+import { UserRoles } from '../entities/user.entity';
 
 @Exclude()
 export class UserDto {
@@ -17,4 +18,8 @@ export class UserDto {
   @IsString()
   @ApiProperty()
   email: string;
+
+  @Expose()
+  @ApiProperty()
+  role: UserRoles;
 }

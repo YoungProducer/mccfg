@@ -10,6 +10,12 @@ import { ConfigEntity } from '../../config/entities/config.entity';
 import { ConfirmationTokenEntity } from './confirmation-token.entity';
 import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
 
+export enum UserRoles {
+  ADMIN = 'admin',
+  READ = 'read',
+  WRITE = 'write',
+}
+
 @Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -26,6 +32,12 @@ export class UserEntity {
     unique: true,
   })
   email!: string;
+
+  @Column('enum', {
+    enum: UserRoles,
+    default: UserRoles.READ,
+  })
+  role!: UserRoles;
 
   @Column('varchar', {
     length: 255,

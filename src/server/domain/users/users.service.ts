@@ -44,6 +44,7 @@ export class UsersService {
       email: data.email,
       hash: data.hash,
       salt: data.salt,
+      role: data.role,
     });
 
     await this.usersRepository.save(user);

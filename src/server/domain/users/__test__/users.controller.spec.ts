@@ -4,7 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UsersController } from '../users.controller';
 import { UsersService } from '../users.service';
 import { UserDto } from '../dto/user.dto';
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity, UserRoles } from '../entities/user.entity';
 import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException, ConflictException } from '@nestjs/common';
@@ -71,6 +71,7 @@ describe('UsersController', () => {
         id: 1,
         email: 'email',
         username: 'username',
+        role: UserRoles.READ,
       };
 
       const serviceFindAllResult: UserEntity = {
@@ -81,6 +82,7 @@ describe('UsersController', () => {
         confirmationToken: null,
         verified: false,
         refreshTokens: [],
+        role: UserRoles.READ,
       };
 
       jest

@@ -5,7 +5,10 @@ import { UsersService } from 'server/domain/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
-import { UserEntity } from 'server/domain/users/entities/user.entity';
+import {
+  UserEntity,
+  UserRoles,
+} from 'server/domain/users/entities/user.entity';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { SignUpResponseDto } from '../dto/sign-up-response.dto';
@@ -86,6 +89,7 @@ describe('CONTROLLER Auth', () => {
         email: 'email',
         id: 1,
         username: 'username',
+        role: UserRoles.READ,
       };
 
       const userToReturn: UserEntity = {
@@ -96,6 +100,7 @@ describe('CONTROLLER Auth', () => {
         salt: 'salt',
         verified: false,
         refreshTokens: [],
+        role: UserRoles.READ,
       };
 
       jest.spyOn(authService, 'signUp').mockResolvedValue(userToReturn);
@@ -139,6 +144,7 @@ describe('CONTROLLER Auth', () => {
         hash: 'hash',
         salt: 'salt',
         id: 1,
+        role: UserRoles.READ,
       };
 
       jest
@@ -156,6 +162,7 @@ describe('CONTROLLER Auth', () => {
         username: userToReturn.username,
         email: userToReturn.email,
         id: userToReturn.id,
+        role: UserRoles.READ,
       };
 
       const expected: SignInResponseDto = {
