@@ -2,6 +2,7 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MCVersionEntity } from './entities/mc-version.entity';
 import { Repository } from 'typeorm';
+import { mcVersionErrorMessages } from './constants/error-messages';
 
 @Injectable()
 export class MCVersionService {
@@ -15,7 +16,7 @@ export class MCVersionService {
 
     if (exsistingVersion) {
       throw new ConflictException(
-        `Minecraft with version ${version} already exist.`,
+        mcVersionErrorMessages.getVersionExistErr(version),
       );
     }
 

@@ -4,6 +4,7 @@ import { MCVersionService } from '../mcversion.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConflictException } from '@nestjs/common';
+import { mcVersionErrorMessages } from '../constants/error-messages';
 
 describe('SERVICE MCVersion', () => {
   let mcVersionService: MCVersionService;
@@ -66,27 +67,11 @@ describe('SERVICE MCVersion', () => {
         .spyOn(repo, 'findOne')
         .mockImplementation(async () => result);
 
-      expect(mcVersionService.create(version)).rejects.toThrow(
-        ConflictException,
-      );
+      const call = mcVersionService.create(version);
 
-      expect(findOneSpy).toBeCalledTimes(1);
-    });
-
-    it(`should throw an expected string if given version already exist`, async () => {
-      const version = '1.0';
-
-      const result: MCVersionEntity = {
-        id: 1,
-        version,
-      };
-
-      const findOneSpy = jest
-        .spyOn(repo, 'findOne')
-        .mockImplementation(async () => result);
-
-      expect(mcVersionService.create(version)).rejects.toThrowError(
-        `Minecraft with version 1.0 already exist.`,
+      expect(call).rejects.toThrow(ConflictException);
+      expect(call).rejects.toThrowError(
+        mcVersionErrorMessages.getVersionExistErr(version),
       );
 
       expect(findOneSpy).toBeCalledTimes(1);

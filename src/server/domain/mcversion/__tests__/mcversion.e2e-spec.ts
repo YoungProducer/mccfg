@@ -8,6 +8,8 @@ import { resetRepos } from 'server/test-utils/clear-repos';
 import { MCVersionEntity } from '../entities/mc-version.entity';
 import { StartedPostgreSqlContainer } from 'testcontainers';
 import { createTestContainer } from 'server/test-utils/create-test-container';
+import { HttpStatus } from '@nestjs/common';
+import { mcVersionErrorMessages } from '../constants/error-messages';
 
 describe('E2E MCVersion', () => {
   jest.setTimeout(180_000);
@@ -62,21 +64,25 @@ describe('E2E MCVersion', () => {
         .send({
           version: '1.0',
         })
-        .expect(201);
+        .expect(HttpStatus.CREATED);
     });
 
     it('should return an error if version already exist', async () => {
       const entityData = {
         version: '1.0',
       };
+
       const entity = versionsRepo.create(entityData);
+
       await versionsRepo.save(entity);
+
       const res = await request(app.getHttpServer())
         .post('/mc-versions')
         .send(entityData);
-      expect(res.statusCode).toBe(409);
+
+      expect(res.statusCode).toBe(HttpStatus.CONFLICT);
       expect(res.body.message).toBe(
-        'Minecraft with version 1.0 already exist.',
+        mcVersionErrorMessages.getVersionExistErr(entityData.version),
       );
     });
   });
@@ -97,7 +103,7 @@ describe('E2E MCVersion', () => {
 
       const res = await request(app.getHttpServer()).get('/mc-versions');
 
-      expect(res.statusCode).toBe(200);
+      expect(res.statusCode).toBe(HttpStatus.OK);
       expect(res.body).toEqual([resultEntity]);
     });
   });
