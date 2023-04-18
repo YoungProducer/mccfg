@@ -8,6 +8,7 @@ import { SignInDto } from './dto/sign-in.dto';
 import { SignInResponseDto } from './dto/sign-in-response.dto';
 import { TokensService } from '../tokens/tokens.service';
 import { UserDto } from '../users/dto/user.dto';
+import { Public } from './decorators/public.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -17,6 +18,7 @@ export class AuthController {
     private tokensService: TokensService,
   ) {}
 
+  @Public()
   @Post('/sign-up')
   @HttpCode(200)
   @ApiBody({
@@ -31,6 +33,7 @@ export class AuthController {
     return plainToInstance(SignUpResponseDto, { user });
   }
 
+  @Public()
   @Post('/sign-in')
   @HttpCode(200)
   @ApiBody({

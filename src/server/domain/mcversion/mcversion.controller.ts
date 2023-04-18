@@ -4,12 +4,14 @@ import { plainToInstance } from 'class-transformer';
 import { VersionResponseDto } from './dto/version.response.dto';
 import { CreateVersionDto } from './dto/create-version.dto';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('MC Versions')
 @Controller('mc-versions')
 export class MCVersionController {
   constructor(private mcVersionService: MCVersionService) {}
 
+  @Public()
   @Get()
   @HttpCode(200)
   @ApiOkResponse({
@@ -24,6 +26,7 @@ export class MCVersionController {
     );
   }
 
+  @Public()
   @Post()
   @HttpCode(201)
   async createVersion(@Body() versionDto: CreateVersionDto): Promise<void> {

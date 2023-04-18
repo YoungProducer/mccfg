@@ -22,18 +22,21 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { GetAllModsQueryDto } from './dto/get-all-mods-query.dto';
 import { GetModQueryDto } from './dto/get-mod-query.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 @ApiTags('Mods')
 @Controller('mods')
 export class ModsController {
   constructor(private modsService: ModsService) {}
 
+  @Public()
   @Post()
   @HttpCode(201)
   async createMod(@Body() modDto: CreateModDto): Promise<void> {
     await this.modsService.create(modDto);
   }
 
+  @Public()
   @Post(':id/versions')
   @HttpCode(201)
   @ApiParam({
@@ -52,6 +55,7 @@ export class ModsController {
     });
   }
 
+  @Public()
   @Get()
   @HttpCode(200)
   @ApiQuery({
@@ -75,6 +79,7 @@ export class ModsController {
     return res.map((entity) => plainToInstance(ModDto, entity));
   }
 
+  @Public()
   @Get(':id')
   @HttpCode(200)
   @ApiParam({
@@ -102,6 +107,7 @@ export class ModsController {
     return plainToInstance(ModDto, res);
   }
 
+  @Public()
   @Get(':id/versions')
   @HttpCode(200)
   @ApiParam({
@@ -122,6 +128,7 @@ export class ModsController {
     );
   }
 
+  @Public()
   @Get('versions/:versionId')
   @HttpCode(200)
   @ApiParam({

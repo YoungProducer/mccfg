@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { NestApplication } from '@nestjs/core';
+import { APP_GUARD, NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { DeepPartial, ObjectLiteral, Repository } from 'typeorm';
@@ -13,6 +13,14 @@ import { createTestContainer } from 'server/test-utils/create-test-container';
 import { StartedPostgreSqlContainer } from 'testcontainers';
 import { userErrorMessages } from '../constants/error-messages';
 import { HttpStatus } from '@nestjs/common';
+import { getTestAccessToken } from 'server/test-utils/get-test-access-token';
+import { JWTGuard } from 'server/domain/auth/guards/jwt.guard';
+import { TokensModule } from 'server/domain/tokens/tokens.module';
+import { ConfigModule } from 'server/config/config.module';
+import {
+  jwtGuardErrorMessages,
+  rolesGuardErrorMessages,
+} from 'server/domain/auth/guards/constants/error-messages';
 
 describe('Users', () => {
   jest.setTimeout(180_000);
@@ -23,13 +31,26 @@ describe('Users', () => {
   let userRepo: Repository<UserEntity>;
   let confirmationsTokensRepo: Repository<ConfirmationTokenEntity>;
 
+  let adminAccessToken: string;
+
   beforeAll(async () => {
     const containerData = await createTestContainer();
 
     pgContainer = containerData.pgContainer;
 
     const moduleRef = await Test.createTestingModule({
-      imports: [TypeOrmModule.forRoot(containerData.options), UsersModule],
+      imports: [
+        TypeOrmModule.forRoot(containerData.options),
+        ConfigModule.forRoot({ folder: './configs' }),
+        TokensModule,
+        UsersModule,
+      ],
+      providers: [
+        {
+          provide: APP_GUARD,
+          useClass: JWTGuard,
+        },
+      ],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -43,6 +64,16 @@ describe('Users', () => {
     >(getRepositoryToken(ConfirmationTokenEntity));
 
     repos = [userRepo, confirmationsTokensRepo];
+
+    adminAccessToken = await getTestAccessToken(
+      {
+        username: 'admin',
+        email: 'admin@email.com',
+        id: 1,
+        role: UserRoles.ADMIN,
+      },
+      '3m',
+    );
 
     await app.init();
   });
@@ -66,6 +97,7 @@ describe('Users', () => {
       it('should create a new user', () => {
         return request(app.getHttpServer())
           .post('/users')
+          .set('Authorization', `Bearer ${adminAccessToken}`)
           .send({
             username: 'username',
             email: 'email@email',
@@ -80,6 +112,7 @@ describe('Users', () => {
 
         const { statusCode } = await request(app.getHttpServer())
           .post('/users')
+          .set('Authorization', `Bearer ${adminAccessToken}`)
           .send({
             username,
             email: 'email@email',
@@ -104,6 +137,7 @@ describe('Users', () => {
 
         const { statusCode } = await request(app.getHttpServer())
           .post('/users')
+          .set('Authorization', `Bearer ${adminAccessToken}`)
           .send({
             username,
             email: 'email@email',
@@ -121,6 +155,43 @@ describe('Users', () => {
         });
 
         expect(createdUser.role).toBe(role);
+      });
+    });
+
+    describe('STATUS 401', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return an error if access token is missing in headers', async () => {
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/users')
+          .send();
+
+        expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+        expect(body.message).toBe(jwtGuardErrorMessages.getMissingTokenErr());
+      });
+
+      it('should return an error if user does not have admin grants', async () => {
+        const accessToken = await getTestAccessToken(
+          {
+            email: 'e',
+            id: 1,
+            role: UserRoles.WRITE,
+            username: 'u',
+          },
+          '3m',
+        );
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/users')
+          .set({ Authorization: `Bearer ${accessToken}` })
+          .send();
+
+        expect(statusCode).toBe(HttpStatus.UNAUTHORIZED);
+        expect(body.message).toBe(
+          rolesGuardErrorMessages.getUserHasNoGrantsErr(),
+        );
       });
     });
 
@@ -145,6 +216,7 @@ describe('Users', () => {
 
         const { statusCode, body } = await request(app.getHttpServer())
           .post('/users')
+          .set({ Authorization: `Bearer ${adminAccessToken}` })
           .send(data);
 
         expect(statusCode).toBe(HttpStatus.CONFLICT);
@@ -172,6 +244,7 @@ describe('Users', () => {
 
         const { statusCode, body } = await request(app.getHttpServer())
           .post('/users')
+          .set('Authorization', `Bearer ${adminAccessToken}`)
           .send(data);
 
         expect(statusCode).toBe(HttpStatus.CONFLICT);
@@ -197,6 +270,7 @@ describe('Users', () => {
 
         const { statusCode, body } = await request(app.getHttpServer())
           .post('/users')
+          .set('Authorization', `Bearer ${adminAccessToken}`)
           .send(data);
 
         expect(statusCode).toBe(HttpStatus.CONFLICT);
