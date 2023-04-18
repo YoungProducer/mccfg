@@ -3,7 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 
 import { RolesGuard } from '../roles.guard';
-import { rolesErrorMessages } from '../constants/error-messages';
+import { rolesGuardErrorMessages } from '../constants/error-messages';
 
 describe('GUARD Roles', () => {
   it('should throw UnauthorizedException if user object missing in query', () => {
@@ -21,7 +21,7 @@ describe('GUARD Roles', () => {
 
     expect(call).rejects.toThrow(UnauthorizedException);
     expect(call).rejects.toThrowError(
-      rolesErrorMessages.getUserUnathorizedErr(),
+      rolesGuardErrorMessages.getUserUnathorizedErr(),
     );
   });
 
@@ -48,7 +48,7 @@ describe('GUARD Roles', () => {
 
     expect(call).rejects.toThrow(UnauthorizedException);
     expect(call).rejects.toThrowError(
-      rolesErrorMessages.getUserHasNoGrantsErr(),
+      rolesGuardErrorMessages.getUserHasNoGrantsErr(),
     );
   });
 
