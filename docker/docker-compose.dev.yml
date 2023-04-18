@@ -4,10 +4,12 @@ services:
   db:
     container_name: postgres_mccfg
     image: postgres:14.0-alpine
-    restart: always
+    restart: on-failure
     environment:
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+    volumes:
+    - ./pgdata:/var/lib/postgresql/data
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - ${DB_EXTERNAL_PORT}:${DB_PORT}
