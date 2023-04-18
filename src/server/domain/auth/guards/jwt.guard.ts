@@ -13,6 +13,7 @@ import { Inject } from '@nestjs/common';
 import { DI_CONFIG } from 'server/config/constants';
 import { Reflector } from '@nestjs/core';
 import { publicDecoratorToken } from '../decorators/public.decorator';
+import { jwtGuardErrorMessages } from './constants/error-messages';
 
 @Injectable()
 export class JWTGuard implements CanActivate {
@@ -42,17 +43,23 @@ export class JWTGuard implements CanActivate {
     const tokenString = req.headers.authorization;
 
     if (!tokenString) {
-      throw new UnauthorizedException('Missing access token!');
+      throw new UnauthorizedException(
+        jwtGuardErrorMessages.getMissingTokenErr(),
+      );
     }
 
     if (!tokenString.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Invalid token type!');
+      throw new UnauthorizedException(
+        jwtGuardErrorMessages.getInvalidTokenErr(),
+      );
     }
 
     const token = tokenString.slice('Bearer '.length);
 
     if (token.split('.').length !== 3) {
-      throw new UnauthorizedException('Token is not a type of JWT!');
+      throw new UnauthorizedException(
+        jwtGuardErrorMessages.getTokenIsNotJwtErr(),
+      );
     }
 
     return token;

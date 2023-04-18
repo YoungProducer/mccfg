@@ -6,6 +6,8 @@ import { createMock } from '@golevelup/ts-jest';
 import { UserDto } from 'server/domain/users/dto/user.dto';
 import { UserRoles } from 'server/domain/users/entities/user.entity';
 import { Reflector } from '@nestjs/core';
+import { jwtGuardErrorMessages } from '../constants/error-messages';
+import { jwtErrorMessages } from 'server/domain/tokens/jwt/constants/error-messages';
 
 describe('GUARD JWT', () => {
   let jwtService: JWTService;
@@ -39,7 +41,9 @@ describe('GUARD JWT', () => {
     const call = jwtGuard.canActivate(mockContext);
 
     expect(call).rejects.toThrow(UnauthorizedException);
-    expect(call).rejects.toThrowError('Missing access token!');
+    expect(call).rejects.toThrowError(
+      jwtGuardErrorMessages.getMissingTokenErr(),
+    );
   });
 
   it('should throw UnathorizedException if token does not starts with "Bearer "', () => {
@@ -60,7 +64,9 @@ describe('GUARD JWT', () => {
     const call = jwtGuard.canActivate(mockContext);
 
     expect(call).rejects.toThrow(UnauthorizedException);
-    expect(call).rejects.toThrowError('Invalid token type!');
+    expect(call).rejects.toThrowError(
+      jwtGuardErrorMessages.getInvalidTokenErr(),
+    );
   });
 
   it('should throw UnauthorizedException if token has invalid number of parts', () => {
@@ -81,7 +87,9 @@ describe('GUARD JWT', () => {
     const call = jwtGuard.canActivate(mockContext);
 
     expect(call).rejects.toThrow(UnauthorizedException);
-    expect(call).rejects.toThrowError('Token is not a type of JWT!');
+    expect(call).rejects.toThrowError(
+      jwtGuardErrorMessages.getTokenIsNotJwtErr(),
+    );
   });
 
   it('should throw UnathorizedException if token is out of date', async () => {
@@ -114,7 +122,7 @@ describe('GUARD JWT', () => {
     const call = jwtGuard.canActivate(mockContext);
 
     expect(call).rejects.toThrow(UnauthorizedException);
-    expect(call).rejects.toThrowError('Token is expired!');
+    expect(call).rejects.toThrowError(jwtErrorMessages.getTokenExpiredErr());
   });
 
   it('should pass validation if token is valid', async () => {
