@@ -8,7 +8,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { ApiTags, ApiOkResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOkResponse,
+  ApiParam,
+  ApiBearerAuth,
+  ApiHeaders,
+} from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,6 +33,12 @@ export class UsersController {
   @Post()
   @HttpCode(201)
   @Roles(UserRoles.ADMIN)
+  @ApiBearerAuth('JWT token')
+  @ApiHeaders([
+    {
+      name: 'Authorization',
+    },
+  ])
   async createUser(@Body() body: CreateUserDto): Promise<void> {
     await this.usersService.create(body);
   }
