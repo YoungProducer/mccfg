@@ -5,22 +5,20 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { createMock } from '@golevelup/ts-jest';
 import { UserDto } from 'server/domain/users/dto/user.dto';
 import { UserRoles } from 'server/domain/users/entities/user.entity';
+import { Reflector } from '@nestjs/core';
 
 describe('GUARD JWT', () => {
-  let jwtGuard: JWTGuard;
   let jwtService: JWTService;
   const config = <EnvConfig>{
     JWT_SECRET: 'secret',
     JWT_EXPIRES_IN: '3m',
   };
 
+  const createJwtGuard = (reflector: Reflector) =>
+    new JWTGuard(reflector, jwtService, config);
+
   beforeAll(() => {
     jwtService = new JWTService();
-    jwtGuard = new JWTGuard(jwtService, config);
-  });
-
-  it('should be defined', () => {
-    expect(jwtGuard).toBeDefined();
   });
 
   it('should throw UnathorizedException if header does not contain token', () => {
@@ -31,6 +29,12 @@ describe('GUARD JWT', () => {
         authorization: undefined,
       },
     });
+
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(undefined);
+
+    const jwtGuard = createJwtGuard(mockReflector);
 
     const call = jwtGuard.canActivate(mockContext);
 
@@ -47,6 +51,12 @@ describe('GUARD JWT', () => {
       },
     });
 
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(undefined);
+
+    const jwtGuard = createJwtGuard(mockReflector);
+
     const call = jwtGuard.canActivate(mockContext);
 
     expect(call).rejects.toThrow(UnauthorizedException);
@@ -61,6 +71,12 @@ describe('GUARD JWT', () => {
         authorization: 'Bearer adwa.adwa',
       },
     });
+
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(undefined);
+
+    const jwtGuard = createJwtGuard(mockReflector);
 
     const call = jwtGuard.canActivate(mockContext);
 
@@ -89,6 +105,12 @@ describe('GUARD JWT', () => {
       },
     });
 
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(undefined);
+
+    const jwtGuard = createJwtGuard(mockReflector);
+
     const call = jwtGuard.canActivate(mockContext);
 
     expect(call).rejects.toThrow(UnauthorizedException);
@@ -116,6 +138,12 @@ describe('GUARD JWT', () => {
       },
     });
 
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(undefined);
+
+    const jwtGuard = createJwtGuard(mockReflector);
+
     const res = await jwtGuard.canActivate(mockContext);
 
     expect(res).toBeTruthy();
@@ -125,5 +153,17 @@ describe('GUARD JWT', () => {
     // assure that request has user object after success validation
     expect(request).toHaveProperty('user');
     expect(request['user']).toEqual(userData);
+  });
+
+  it('should skip validation if "isPublic" is true', async () => {
+    const mockReflector = createMock<Reflector>();
+
+    mockReflector.get.mockReturnValue(true);
+
+    const mockContext = createMock<ExecutionContext>();
+
+    const jwtGuard = createJwtGuard(mockReflector);
+
+    expect(await jwtGuard.canActivate(mockContext)).toBeTruthy();
   });
 });

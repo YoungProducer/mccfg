@@ -9,16 +9,30 @@ import { Request } from 'express';
 import { EnvConfig } from 'server/config/interfaces';
 import { JWTService } from 'server/domain/tokens/jwt/jwt.service';
 import { UserDto } from 'server/domain/users/dto/user.dto';
+import { Inject } from '@nestjs/common';
+import { DI_CONFIG } from 'server/config/constants';
+import { Reflector } from '@nestjs/core';
+import { publicDecoratorToken } from '../decorators/public.decorator';
 
 @Injectable()
 export class JWTGuard implements CanActivate {
   constructor(
+    private readonly reflector: Reflector,
+
     private readonly jwtService: JWTService,
 
+    @Inject(DI_CONFIG)
     private readonly config: EnvConfig,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.get<boolean>(
+      publicDecoratorToken,
+      context.getHandler(),
+    );
+
+    if (isPublic) return true;
+
     const request = context.switchToHttp().getRequest<Request>();
 
     return await this.validate(request);
