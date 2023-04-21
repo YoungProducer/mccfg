@@ -20,6 +20,11 @@ export class ConfigEntity {
   fileName!: string;
 
   @Column('varchar', {
+    length: 255,
+  })
+  initialFileName!: string;
+
+  @Column('varchar', {
     length: 100,
   })
   version!: string;
