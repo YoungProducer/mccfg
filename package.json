@@ -24,7 +24,6 @@
     "postgres:dev": "docker-compose -f ./docker/docker-compose.dev.yml -p mccfg_dev --env-file ./configs/development.env up -d",
     "postgres:dev:down": "docker-compose -f ./docker/docker-compose.dev.yml -p mccfg_dev --env-file ./configs/development.env down",
     "postgres:test": "docker-compose -f ./docker/docker-compose.test.yml -p mccfg_test --env-file ./configs/test.env up -d",
-    "typeorm:cli": "typeorm -- -d src/server/infrastructure/database/helpers/static-orm-options.ts",
     "migration:create": "yarn build && yarn typeorm-ts-node-commonjs migration:generate -d db-configs/migration.js",
     "migration:generate": "yarn build && yarn typeorm-ts-node-commonjs migration:generate -d db-configs/migration.js",
     "migration:up": "yarn typeorm-ts-node-commonjs migration:run -d db-configs/migration.js",
