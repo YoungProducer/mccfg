@@ -181,7 +181,7 @@ export class ModsService {
     });
   }
 
-  private async findModByName(name: string): Promise<ModEntity> {
+  public async findModByName(name: string): Promise<ModEntity> {
     return await this.modsRepository.findOne({
       where: {
         name,
@@ -189,7 +189,7 @@ export class ModsService {
     });
   }
 
-  private async findModVersionByVersion(
+  public async findModVersionByVersion(
     version: string,
   ): Promise<ModVersionEntity> {
     return await this.modVersionsRepository.findOne({
@@ -197,5 +197,18 @@ export class ModsService {
         version,
       },
     });
+  }
+
+  public async findAllModVersionsById(
+    ids: number[],
+  ): Promise<ModVersionEntity[]> {
+    const result = await this.modVersionsRepository
+      .createQueryBuilder()
+      .where('id IN (...ids)', {
+        ids,
+      })
+      .getMany();
+
+    return result;
   }
 }
