@@ -37,5 +37,5 @@ export class ConfigEntity {
 
   @ManyToMany(() => ModVersionEntity)
   @JoinTable()
-  dependecies!: ModVersionEntity[];
+  dependencies!: ModVersionEntity[];
 }
