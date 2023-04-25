@@ -10,16 +10,8 @@ dotenv.config({
 });
 
 const entitiesNames = '*.entity{.ts,.js}';
-const subscribersNames = '*.subscriber{.ts,.js}';
 
 const entitiesPath = path.resolve(__dirname, '..', 'dist', '**', entitiesNames);
-const subscribersPath = path.resolve(
-  __dirname,
-  '..',
-  'dist',
-  '**',
-  subscribersNames,
-);
 
 const migrationsNames = '*{.ts,.js}';
 
@@ -36,7 +28,6 @@ const dataSource = new DataSource({
   database: process.env.DB_NAME,
   entities: [entitiesPath],
   migrations: [migrationsPath],
-  subscribers: [subscribersPath],
   migrationsTableName: 'migrations',
   synchronize: false,
 });

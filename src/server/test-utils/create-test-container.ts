@@ -21,18 +21,6 @@ const getEntitiesPath = (): string => {
   return entitiesPath;
 };
 
-const getSubscribersPath = (): string => {
-  const subscribersNames = '*.subscriber{.ts,.js}';
-  const subscribersPath = path.resolve(
-    __dirname,
-    '../../',
-    '**',
-    subscribersNames,
-  );
-
-  return subscribersPath;
-};
-
 const getTypeormOptions = (
   container: StartedPostgreSqlContainer,
 ): TypeOrmModuleOptions => ({
@@ -43,7 +31,6 @@ const getTypeormOptions = (
   password: container.getPassword(),
   database,
   entities: [getEntitiesPath()],
-  subscribers: [getSubscribersPath()],
   synchronize: true,
   autoLoadEntities: true,
 });
