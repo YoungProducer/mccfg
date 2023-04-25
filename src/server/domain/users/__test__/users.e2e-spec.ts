@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { rm } from 'node:fs/promises';
 import { APP_GUARD, NestApplication } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
@@ -21,6 +22,7 @@ import {
   jwtGuardErrorMessages,
   rolesGuardErrorMessages,
 } from 'server/domain/auth/guards/constants/error-messages';
+import { join } from 'node:path';
 
 describe('Users', () => {
   jest.setTimeout(180_000);
@@ -86,6 +88,8 @@ describe('Users', () => {
     await resetRepos(repos);
     await app.close();
     await pgContainer.stop();
+
+    await rm(join(process.cwd(), 'test-uploads'), { recursive: true });
   });
 
   describe('POST /users', () => {

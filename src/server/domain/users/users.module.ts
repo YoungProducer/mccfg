@@ -10,6 +10,7 @@ import { ModVersionEntity } from '../mods/entities/mod-version.entity';
 import { MCVersionEntity } from '../mcversion/entities/mc-version.entity';
 import { ConfirmationTokenEntity } from './entities/confirmation-token.entity';
 import { RefreshTokenEntity } from '../tokens/entities/refresh-token.entity';
+import { UserSubscriber } from './subscribers/user.subscriber';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { RefreshTokenEntity } from '../tokens/entities/refresh-token.entity';
     ]),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UserSubscriber],
   exports: [UsersService],
 })
 export class UsersModule {}

@@ -1,6 +1,8 @@
 /pgdata
 /docker/pgdata
-/uploads
+# any kind of uploads (uploads, test-uploads)
+/*uploads
+
 
 # compiled output
 /dist
