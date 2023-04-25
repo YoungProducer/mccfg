@@ -32,7 +32,10 @@ export class ConfigsController {
           const user: UserDto = req['user'];
 
           // works only because we create a dir for user when creating a user
-          const fullPath = `uploads/configs/${user.username}`;
+          const uploadsDir =
+            process.env.NODE_ENV === 'test' ? 'test-uploads' : 'uploads';
+
+          const fullPath = `${uploadsDir}/${user.username}/configs`;
 
           callback(null, fullPath);
         },
