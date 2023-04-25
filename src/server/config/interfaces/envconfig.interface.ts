@@ -9,6 +9,8 @@ export interface EnvConfig {
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
 
+  FILE_UPLOAD_DIR: string;
+
   // VERIFY_SECRET: string;
   // VERIFY_EXPIRES_IN: string;
 
