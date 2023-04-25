@@ -17,7 +17,11 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, options);
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
   app.useGlobalInterceptors(new HttpLoggingInterceptor());
   app.useGlobalFilters(new AllExceptionFilter());
 
