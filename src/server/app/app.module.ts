@@ -10,6 +10,7 @@ import { ModsModule } from 'server/domain/mods/mods.module';
 import { AuthModule } from 'server/domain/auth/auth.module';
 import { TokensModule } from 'server/domain/tokens/tokens.module';
 import { JWTGuard } from 'server/domain/auth/guards/jwt.guard';
+import { ConfigsModule } from 'server/domain/config/config.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { JWTGuard } from 'server/domain/auth/guards/jwt.guard';
     ModsModule,
     AuthModule,
     TokensModule,
+    ConfigsModule,
     RouterModule.register([
       {
         path: 'api/v1',
@@ -29,6 +31,7 @@ import { JWTGuard } from 'server/domain/auth/guards/jwt.guard';
           ModsModule,
           AuthModule,
           TokensModule,
+          ConfigsModule,
         ],
       },
     ]),
