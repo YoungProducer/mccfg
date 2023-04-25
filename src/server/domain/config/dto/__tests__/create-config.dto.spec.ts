@@ -33,4 +33,19 @@ describe('DTO CreateConfigDto', () => {
     expect(errors[0].constraints).toHaveProperty('isNotEmpty');
     expect(errors[0].constraints).toHaveProperty('isInt');
   });
+
+  it('should accept empty array for "dependenciesIds"', async () => {
+    const inputDto: CreateConfigDto = {
+      ownerId: 1,
+      version: '1.0',
+      primaryModId: 1,
+      dependenciesIds: [],
+    };
+
+    const dtoInstance = plainToInstance(CreateConfigDto, inputDto);
+
+    const errors = await validate(dtoInstance);
+
+    expect(errors).toHaveLength(0);
+  });
 });

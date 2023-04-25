@@ -29,7 +29,10 @@ export class ConfigEntity {
   })
   version!: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.configs)
+  @ManyToOne(() => UserEntity, (user) => user.configs, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   owner: UserEntity;
 
   @ManyToOne(() => ModVersionEntity, (mod) => mod.configs)

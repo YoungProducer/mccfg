@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateConfigDto {
@@ -18,6 +19,7 @@ export class CreateConfigDto {
   @ApiProperty({
     type: Number,
   })
+  @Type(() => Number)
   ownerId: number;
 
   @IsInt()
@@ -27,6 +29,7 @@ export class CreateConfigDto {
   @ApiProperty({
     type: Number,
   })
+  @Type(() => Number)
   primaryModId: number;
 
   @IsInt({
@@ -39,5 +42,6 @@ export class CreateConfigDto {
   @ApiProperty({
     type: Number,
   })
+  @Transform(({ value }) => (Array.isArray(value) ? value : JSON.parse(value)))
   dependenciesIds: number[];
 }
