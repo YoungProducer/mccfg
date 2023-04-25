@@ -204,7 +204,7 @@ export class ModsService {
   ): Promise<ModVersionEntity[]> {
     const result = await this.modVersionsRepository
       .createQueryBuilder()
-      .where('id IN (...ids)', {
+      .where('id IN (:...ids)', {
         ids,
       })
       .getMany();
