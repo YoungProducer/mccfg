@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ModEntity } from './entities/mod.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ModVersionEntity } from './entities/mod-version.entity';
 import { CreateModVersionPayload } from './interfaces/create-mod-version.interface';
 import { MCVersionEntity } from '../mcversion/entities/mc-version.entity';
@@ -202,12 +202,11 @@ export class ModsService {
   public async findAllModVersionsById(
     ids: number[],
   ): Promise<ModVersionEntity[]> {
-    const result = await this.modVersionsRepository
-      .createQueryBuilder()
-      .where('id IN (:...ids)', {
-        ids,
-      })
-      .getMany();
+    const result = await this.modVersionsRepository.find({
+      where: {
+        id: In(ids),
+      },
+    });
 
     return result;
   }
