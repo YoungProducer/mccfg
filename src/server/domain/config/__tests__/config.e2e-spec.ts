@@ -23,6 +23,8 @@ import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { existsSync } from 'node:fs';
 import { JWTModule } from 'server/domain/tokens/jwt/jwt.module';
 import { ModVersionEntity } from 'server/domain/mods/entities/mod-version.entity';
+import { safeMkdir } from 'server/utils/safe-mkdir';
+import { configServiceErrorMessages } from '../constants/error-messages';
 
 describe('E2E Confis', () => {
   jest.setTimeout(180_000);
@@ -144,6 +146,135 @@ describe('E2E Confis', () => {
         );
 
         expect(existsSync(expectedDir)).toBeTruthy();
+      });
+    });
+
+    describe('STATUS 404', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return "NotFoundException" if owner with given id does not exist', async () => {
+        const userId = 1;
+        const username = 'user-1';
+
+        const userDto: UserDto = {
+          email: 'email',
+          id: userId,
+          username,
+          role: UserRoles.WRITE,
+        };
+
+        const userToken = await getTestAccessToken(userDto, '1m');
+
+        await safeMkdir(
+          join(process.cwd(), 'test-uploads', username, 'configs'),
+        );
+
+        const buffer = Buffer.from('some data');
+
+        const filename = 'config.txt';
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/configs')
+          .set('Authorization', `Bearer ${userToken}`)
+          .attach('config', buffer, filename)
+          .field('ownerId', userId)
+          .field('primaryModId', 1)
+          .field('dependenciesIds', JSON.stringify([]))
+          .field('version', '1.0');
+
+        expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(body.message).toBe(
+          configServiceErrorMessages.userNotFoundErr(userId),
+        );
+      });
+
+      it('should return "NotFoundException" if mod with given id does not exist', async () => {
+        const userToCreate = userRepo.create({
+          email: 'email',
+          role: UserRoles.READ,
+          username: 'user-2',
+          verified: true,
+          hash: 'hash',
+          salt: 'salt',
+        });
+
+        const userEntity = await userRepo.save(userToCreate);
+
+        const userDto = <UserDto>(
+          instanceToPlain(plainToInstance(UserDto, userEntity))
+        );
+
+        const userToken = await getTestAccessToken(userDto, '1m');
+
+        const buffer = Buffer.from('some data');
+
+        const filename = 'config.txt';
+
+        const primaryModId = 123;
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/configs')
+          .set('Authorization', `Bearer ${userToken}`)
+          .attach('config', buffer, filename)
+          .field('ownerId', userDto.id)
+          .field('primaryModId', primaryModId)
+          .field('dependenciesIds', JSON.stringify([]))
+          .field('version', '1.0');
+
+        expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(body.message).toBe(
+          configServiceErrorMessages.primaryModNotFoundErr(primaryModId),
+        );
+      });
+
+      it('should return "NotFoundException" if one of the dependencies was not found', async () => {
+        const userToCreate = userRepo.create({
+          email: 'email',
+          role: UserRoles.READ,
+          username: 'user-2',
+          verified: true,
+          hash: 'hash',
+          salt: 'salt',
+        });
+
+        const userEntity = await userRepo.save(userToCreate);
+
+        const userDto = <UserDto>(
+          instanceToPlain(plainToInstance(UserDto, userEntity))
+        );
+
+        const userToken = await getTestAccessToken(userDto, '1m');
+
+        const buffer = Buffer.from('some data');
+
+        const filename = 'config.txt';
+
+        const modVersionToCreate = modVersionsRepo.create({
+          compatibleMCVersions: [],
+          mod: null,
+          version: '1.0',
+          configs: [],
+        });
+
+        const modVersionEntity = await modVersionsRepo.save(modVersionToCreate);
+
+        const deps = [123];
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .post('/configs')
+          .set('Authorization', `Bearer ${userToken}`)
+          .attach('config', buffer, filename)
+          .field('ownerId', userDto.id)
+          .field('primaryModId', modVersionEntity.id)
+          .field('dependenciesIds', JSON.stringify(deps))
+          .field('version', '1.0');
+
+        expect(statusCode).toBe(HttpStatus.NOT_FOUND);
+        expect(body.message).toBe(
+          configServiceErrorMessages.dependenciesNotFoundErr(deps.join(', ')),
+        );
       });
     });
   });
