@@ -17,6 +17,7 @@ import { extname } from 'path';
 import { UserDto } from '../users/dto/user.dto';
 import { CreateConfigDto } from './dto/create-config.dto';
 import { ConfigsService } from './config.service';
+import { RemoveFileOnFailureInterceptor } from 'server/lib/interceptors/remove-file-on-failure/remove-file-on-failure.interceptor';
 
 @ApiTags('Configs')
 @Controller('configs')
@@ -50,6 +51,7 @@ export class ConfigsController {
         },
       }),
     }),
+    RemoveFileOnFailureInterceptor,
   )
   @ApiBody({
     type: CreateConfigDto,
