@@ -16,6 +16,7 @@ import { ModEntity } from 'server/domain/mods/entities/mod.entity';
 import { MCVersionEntity } from 'server/domain/mcversion/entities/mc-version.entity';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
+import { FindConfigOptionsInterface } from '../interfaces/find-config.interface';
 
 describe('SERVICE Config', () => {
   let configsService: ConfigsService;
@@ -193,6 +194,88 @@ describe('SERVICE Config', () => {
       await configsService.create(payload);
 
       expect(saveSpy).toBeCalledTimes(1);
+    });
+  });
+
+  describe('METHOD findOneById', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return a config', async () => {
+      const entity: ConfigEntity = {
+        dependencies: [],
+        fileName: '',
+        id: 1,
+        initialFileName: '',
+        owner: null,
+        primaryMod: null,
+        version: '1.0',
+      };
+
+      jest.spyOn(configsRepository, 'findOne').mockResolvedValue(entity);
+
+      const res = await configsService.findOneById(1);
+
+      expect(res).toEqual(entity);
+    });
+
+    it('should be called with "relations" options if specified', async () => {
+      const configId = 1;
+
+      const entity: ConfigEntity = {
+        dependencies: [],
+        fileName: '',
+        id: configId,
+        initialFileName: '',
+        owner: null,
+        primaryMod: null,
+        version: '1.0',
+      };
+
+      const findOneSpy = jest
+        .spyOn(configsRepository, 'findOne')
+        .mockResolvedValue(entity);
+
+      const options: FindConfigOptionsInterface = {
+        populate: {
+          dependencies: true,
+          owner: true,
+        },
+      };
+
+      await configsService.findOneById(configId, options);
+
+      expect(findOneSpy).toBeCalledWith({
+        where: {
+          id: configId,
+        },
+        relations: options.populate,
+      });
+    });
+  });
+
+  describe('METHOD getAll', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should return an array of configs as a result', async () => {
+      const entity: ConfigEntity = {
+        dependencies: [],
+        fileName: '',
+        id: 1,
+        initialFileName: '',
+        owner: null,
+        primaryMod: null,
+        version: '1.0',
+      };
+
+      jest.spyOn(configsRepository, 'find').mockResolvedValue([entity]);
+
+      const res = await configsService.getAll();
+
+      expect(res).toEqual([entity]);
     });
   });
 });

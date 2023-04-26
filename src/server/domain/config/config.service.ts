@@ -8,6 +8,7 @@ import { CreateConfigPayload } from './interfaces/create-config.interface';
 import { UsersService } from '../users/users.service';
 import { configServiceErrorMessages } from './constants/error-messages';
 import { ModsService } from '../mods/mods.service';
+import { FindConfigOptionsInterface } from './interfaces/find-config.interface';
 
 @Injectable()
 export class ConfigsService {
@@ -64,5 +65,19 @@ export class ConfigsService {
     });
 
     await this.configsRepository.save(entityToCreate);
+  }
+
+  public async findOneById(
+    id: number,
+    options?: FindConfigOptionsInterface,
+  ): Promise<ConfigEntity> {
+    return await this.configsRepository.findOne({
+      where: { id },
+      relations: options?.populate,
+    });
+  }
+
+  public async getAll(): Promise<ConfigEntity[]> {
+    return await this.configsRepository.find();
   }
 }
