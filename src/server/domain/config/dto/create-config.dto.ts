@@ -14,16 +14,6 @@ export class CreateConfigDto {
 
   @IsInt()
   @IsNotEmpty({
-    message: `"ownerId" field is missing`,
-  })
-  @ApiProperty({
-    type: Number,
-  })
-  @Type(() => Number)
-  ownerId: number;
-
-  @IsInt()
-  @IsNotEmpty({
     message: `"primaryModId" field is missing`,
   })
   @ApiProperty({

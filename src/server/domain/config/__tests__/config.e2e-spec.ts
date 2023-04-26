@@ -131,7 +131,6 @@ describe('E2E Confis', () => {
           .post('/configs')
           .set('Authorization', `Bearer ${userToken}`)
           .attach('config', buffer, filename)
-          .field('ownerId', userEntity.id)
           .field('primaryModId', modVersionEntity.id)
           .field('dependenciesIds', JSON.stringify([]))
           .field('version', '1.0');
@@ -179,7 +178,6 @@ describe('E2E Confis', () => {
           .post('/configs')
           .set('Authorization', `Bearer ${userToken}`)
           .attach('config', buffer, filename)
-          .field('ownerId', userId)
           .field('primaryModId', 1)
           .field('dependenciesIds', JSON.stringify([]))
           .field('version', '1.0');
@@ -218,7 +216,6 @@ describe('E2E Confis', () => {
           .post('/configs')
           .set('Authorization', `Bearer ${userToken}`)
           .attach('config', buffer, filename)
-          .field('ownerId', userDto.id)
           .field('primaryModId', primaryModId)
           .field('dependenciesIds', JSON.stringify([]))
           .field('version', '1.0');
@@ -266,7 +263,6 @@ describe('E2E Confis', () => {
           .post('/configs')
           .set('Authorization', `Bearer ${userToken}`)
           .attach('config', buffer, filename)
-          .field('ownerId', userDto.id)
           .field('primaryModId', modVersionEntity.id)
           .field('dependenciesIds', JSON.stringify(deps))
           .field('version', '1.0');

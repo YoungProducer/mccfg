@@ -69,13 +69,15 @@ export class ConfigsController {
   ): Promise<void> {
     const fileName: string = request['fileName'];
     const initialFileName: string = config.originalname;
+    const user: UserDto = request['user'];
+    const ownerId = user.id;
 
     await this.configsService.create({
       fileName,
       initialFileName,
       version: dto.version,
       primaryModId: dto.primaryModId,
-      ownerId: dto.ownerId,
+      ownerId,
       dependenciesIds: dto.dependenciesIds,
     });
   }

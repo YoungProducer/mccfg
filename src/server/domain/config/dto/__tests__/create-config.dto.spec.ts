@@ -5,7 +5,6 @@ import { validate } from 'class-validator';
 describe('DTO CreateConfigDto', () => {
   it('should accept "dependenciesIds" as array', async () => {
     const inputDto: CreateConfigDto = {
-      ownerId: 1,
       version: '1.0',
       primaryModId: 1,
       dependenciesIds: [1, 2],
@@ -20,7 +19,6 @@ describe('DTO CreateConfigDto', () => {
 
   it('should have an error if one of element in "dependenciesIds" array is empty', async () => {
     const inputDto: CreateConfigDto = {
-      ownerId: 1,
       version: '1.0',
       primaryModId: 1,
       dependenciesIds: [1, undefined],
@@ -36,7 +34,6 @@ describe('DTO CreateConfigDto', () => {
 
   it('should accept empty array for "dependenciesIds"', async () => {
     const inputDto: CreateConfigDto = {
-      ownerId: 1,
       version: '1.0',
       primaryModId: 1,
       dependenciesIds: [],

@@ -80,10 +80,12 @@ describe('CONTROLLER Configs', () => {
 
       const mockRequest = createMock<Request>();
       mockRequest['fileName'] = 'file.txt';
+      mockRequest['user'] = {
+        id: 1,
+      };
 
       const mockBody: CreateConfigDto = {
         dependenciesIds: [],
-        ownerId: 1,
         primaryModId: 1,
         version: '1.0',
       };
@@ -106,13 +108,17 @@ describe('CONTROLLER Configs', () => {
     });
 
     it('should successfuly create a new instance if there are no erros', async () => {
+      const ownerId = 1;
+
       const mockRequest = createMock<Request>();
       const fileName = 'file.txt';
       mockRequest['fileName'] = fileName;
+      mockRequest['user'] = {
+        id: ownerId,
+      };
 
       const mockBody: CreateConfigDto = {
         dependenciesIds: [],
-        ownerId: 1,
         primaryModId: 1,
         version: '1.0',
       };
@@ -130,6 +136,7 @@ describe('CONTROLLER Configs', () => {
       expect(createSpy).toBeCalledTimes(1);
       expect(createSpy).toBeCalledWith({
         ...mockBody,
+        ownerId,
         fileName,
         initialFileName,
       });
