@@ -15,10 +15,7 @@ import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateModDto } from './dto/create-mod.dto';
 import { CreateModVersionDto } from './dto/create-mod-version.dto';
 import { ModDto } from './dto/mod.dto';
-import {
-  GetAllModVersionsResponseDto,
-  GetModVersionResponseDto,
-} from './dto/mod-version.dto';
+import { ModVersionDto, ModVersionPopulatedDto } from './dto/mod-version.dto';
 import { plainToInstance } from 'class-transformer';
 import { GetAllModsQueryDto } from './dto/get-all-mods-query.dto';
 import { GetModQueryDto } from './dto/get-mod-query.dto';
@@ -115,17 +112,15 @@ export class ModsController {
     type: Number,
   })
   @ApiResponse({
-    type: GetAllModVersionsResponseDto,
+    type: ModVersionDto,
     isArray: true,
   })
   async getAllModVersions(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<GetAllModVersionsResponseDto[]> {
+  ): Promise<ModVersionDto[]> {
     const res = await this.modsService.getAllModVersions(id);
 
-    return res.map((entity) =>
-      plainToInstance(GetAllModVersionsResponseDto, entity),
-    );
+    return res.map((entity) => plainToInstance(ModVersionDto, entity));
   }
 
   @Public()
@@ -136,12 +131,12 @@ export class ModsController {
     type: Number,
   })
   @ApiResponse({
-    type: GetModVersionResponseDto,
+    type: ModVersionPopulatedDto,
   })
   async getModVersion(
     @Param('versionId', ParseIntPipe) modVersionId: number,
-  ): Promise<GetModVersionResponseDto> {
+  ): Promise<ModVersionPopulatedDto> {
     const res = await this.modsService.findModVersion(modVersionId);
-    return plainToInstance(GetModVersionResponseDto, res);
+    return plainToInstance(ModVersionPopulatedDto, res);
   }
 }

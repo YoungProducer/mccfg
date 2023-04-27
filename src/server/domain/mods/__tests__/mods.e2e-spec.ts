@@ -15,7 +15,7 @@ import { CreateModDto } from '../dto/create-mod.dto';
 import { CreateModVersionDto } from '../dto/create-mod-version.dto';
 import { ModDto } from '../dto/mod.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { GetAllModVersionsResponseDto } from '../dto/mod-version.dto';
+import { ModVersionDto } from '../dto/mod-version.dto';
 import { createTestContainer } from 'server/test-utils/create-test-container';
 import { StartedPostgreSqlContainer } from 'testcontainers';
 import { HttpStatus } from '@nestjs/common';
@@ -419,10 +419,7 @@ describe('E2E Mods', () => {
         );
 
         const expected = instanceToPlain(
-          plainToInstance(
-            GetAllModVersionsResponseDto,
-            createdModVersionEntity,
-          ),
+          plainToInstance(ModVersionDto, createdModVersionEntity),
         );
 
         const { statusCode, body } = await request(app.getHttpServer()).get(
@@ -460,10 +457,7 @@ describe('E2E Mods', () => {
         );
 
         const expected = instanceToPlain(
-          plainToInstance(
-            GetAllModVersionsResponseDto,
-            createdModVersionEntity,
-          ),
+          plainToInstance(ModVersionDto, createdModVersionEntity),
         );
 
         const { statusCode, body } = await request(app.getHttpServer()).get(

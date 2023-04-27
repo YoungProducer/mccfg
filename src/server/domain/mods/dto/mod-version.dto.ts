@@ -3,7 +3,7 @@ import { Exclude, Expose, Type } from 'class-transformer';
 import { VersionResponseDto } from 'server/domain/mcversion/dto/version.response.dto';
 
 @Exclude()
-export class GetModVersionResponseDto {
+export class ModVersionPopulatedDto {
   @Expose()
   @ApiProperty()
   id: number;
@@ -23,7 +23,7 @@ export class GetModVersionResponseDto {
 }
 
 @Exclude()
-export class GetAllModVersionsResponseDto {
+export class ModVersionDto {
   @Expose()
   @ApiProperty()
   id: number;

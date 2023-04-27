@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { GetModVersionResponseDto } from './mod-version.dto';
+import { ModVersionPopulatedDto } from './mod-version.dto';
 
 @Expose()
 export class ModDto {
@@ -13,10 +13,10 @@ export class ModDto {
   name: string;
 
   @Expose()
-  @Type(() => GetModVersionResponseDto)
+  @Type(() => ModVersionPopulatedDto)
   @ApiProperty({
-    type: GetModVersionResponseDto,
+    type: ModVersionPopulatedDto,
     isArray: true,
   })
-  versions: GetModVersionResponseDto[];
+  versions: ModVersionPopulatedDto[];
 }
