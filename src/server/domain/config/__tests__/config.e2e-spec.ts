@@ -13,7 +13,7 @@ import { ConfigModule } from 'server/config/config.module';
 import { ConfigsModule } from '../config.module';
 import { ConfigEntity } from '../entities/config.entity';
 import { resetRepos } from 'server/test-utils/clear-repos';
-import { rm } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { JWTGuard } from 'server/domain/auth/guards/jwt.guard';
 import { getTestAccessToken } from 'server/test-utils/get-test-access-token';
@@ -26,6 +26,7 @@ import { ModVersionEntity } from 'server/domain/mods/entities/mod-version.entity
 import { safeMkdir } from 'server/utils/safe-mkdir';
 import { configServiceErrorMessages } from '../constants/error-messages';
 import { ConfigDto, ConfigPopulatedDto } from '../dto/config.dto';
+import { binaryParser } from 'server/utils/binary-parser';
 
 describe('E2E Confis', () => {
   jest.setTimeout(180_000);
@@ -363,6 +364,62 @@ describe('E2E Confis', () => {
 
         expect(statusCode).toBe(HttpStatus.OK);
         expect(body.owner).toEqual(expect.objectContaining(userDto));
+      });
+    });
+  });
+
+  describe('GET /configs/:id/file', () => {
+    describe('STATUS 200', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return a file', async () => {
+        const userToCreate = userRepo.create({
+          email: 'email',
+          username: 'file-username',
+          salt: 'salt',
+          hash: 'hash',
+        });
+
+        const userEntity = await userRepo.save(userToCreate);
+
+        const folderPath = join(
+          process.cwd(),
+          'test-uploads',
+          userEntity.username,
+          'configs',
+        );
+
+        await safeMkdir(folderPath);
+
+        const fileName = 'file.txt';
+
+        const filePath = join(folderPath, fileName);
+
+        const fileContent = 'content';
+
+        await writeFile(filePath, fileContent);
+
+        const configToCreate = configsRepo.create({
+          fileName,
+          dependencies: [],
+          initialFileName: 'initial',
+          owner: userEntity,
+          version: '1.0',
+          primaryMod: null,
+        });
+
+        const configEntity = await configsRepo.save(configToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .get(`/configs/${configEntity.id}/file`)
+          .buffer()
+          .parse(binaryParser);
+
+        expect(statusCode).toBe(HttpStatus.OK);
+
+        expect(body.toString()).toBe(fileContent);
       });
     });
   });

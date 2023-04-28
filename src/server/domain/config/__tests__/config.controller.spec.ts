@@ -16,6 +16,7 @@ import { ConfigsController } from '../config.controller';
 import { createMock } from '@golevelup/ts-jest';
 import { Request } from 'express';
 import { CreateConfigDto } from '../dto/create-config.dto';
+import { ConfigModule } from 'server/config/config.module';
 
 describe('CONTROLLER Configs', () => {
   let configsController: ConfigsController;
@@ -23,6 +24,7 @@ describe('CONTROLLER Configs', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ folder: './configs' })],
       controllers: [ConfigsController],
       providers: [
         ConfigsService,
