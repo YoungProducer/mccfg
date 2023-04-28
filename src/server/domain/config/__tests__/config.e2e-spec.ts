@@ -25,6 +25,7 @@ import { JWTModule } from 'server/domain/tokens/jwt/jwt.module';
 import { ModVersionEntity } from 'server/domain/mods/entities/mod-version.entity';
 import { safeMkdir } from 'server/utils/safe-mkdir';
 import { configServiceErrorMessages } from '../constants/error-messages';
+import { ConfigDto, ConfigPopulatedDto } from '../dto/config.dto';
 
 describe('E2E Confis', () => {
   jest.setTimeout(180_000);
@@ -271,6 +272,97 @@ describe('E2E Confis', () => {
         expect(body.message).toBe(
           configServiceErrorMessages.dependenciesNotFoundErr(deps.join(', ')),
         );
+      });
+    });
+  });
+
+  describe('GET /configs', () => {
+    describe('STATUS 200', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return all configs', async () => {
+        const configToCreate = configsRepo.create({
+          fileName: 'file',
+          dependencies: [],
+          initialFileName: 'initial',
+          owner: null,
+          version: '1.0',
+          primaryMod: null,
+        });
+
+        const configEntity = await configsRepo.save(configToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer()).get(
+          '/configs',
+        );
+
+        const expectedDto = plainToInstance(ConfigDto, configEntity);
+
+        expect(statusCode).toBe(HttpStatus.OK);
+        expect(body).toEqual([expectedDto]);
+      });
+    });
+  });
+
+  describe('GET /configs/:id', () => {
+    describe('STATUS 200', () => {
+      beforeEach(async () => {
+        await resetRepos(repos);
+      });
+
+      it('should return a config by id', async () => {
+        const configToCreate = configsRepo.create({
+          fileName: 'file',
+          dependencies: [],
+          initialFileName: 'initial',
+          owner: null,
+          version: '1.0',
+          primaryMod: null,
+        });
+
+        const configEntity = await configsRepo.save(configToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer()).get(
+          `/configs/${configEntity.id}`,
+        );
+
+        const expectedDto = plainToInstance(ConfigPopulatedDto, configEntity);
+
+        expect(statusCode).toBe(HttpStatus.OK);
+        expect(body).toEqual(expectedDto);
+      });
+
+      it('should return a config with user populated', async () => {
+        const userToCreate = userRepo.create({
+          email: 'email',
+          username: 'username',
+          salt: 'salt',
+          hash: 'hash',
+        });
+
+        const userEntity = await userRepo.save(userToCreate);
+
+        const configToCreate = configsRepo.create({
+          fileName: 'file',
+          dependencies: [],
+          initialFileName: 'initial',
+          owner: userEntity,
+          version: '1.0',
+          primaryMod: null,
+        });
+
+        const configEntity = await configsRepo.save(configToCreate);
+
+        const { statusCode, body } = await request(app.getHttpServer()).get(
+          `/configs/${configEntity.id}?owner=true`,
+        );
+
+        const userDto = plainToInstance(UserDto, userEntity);
+
+        expect(statusCode).toBe(HttpStatus.OK);
+        expect(body.owner).toEqual(expect.objectContaining(userDto));
       });
     });
   });
