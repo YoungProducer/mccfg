@@ -44,12 +44,9 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
   }
 
   async beforeRemove(event: RemoveEvent<UserEntity>): Promise<void> {
-    if (process.env.NODE_ENV === 'test') return;
+    if (!event.databaseEntity) return;
 
-    const dirPath = path.join(
-      this.getUserUploadsPath(event.databaseEntity),
-      'configs',
-    );
+    const dirPath = path.join(this.getUserUploadsPath(event.databaseEntity));
 
     await rm(dirPath, {
       recursive: true,
