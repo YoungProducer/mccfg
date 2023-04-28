@@ -23,9 +23,6 @@ import {
 import { Req } from '@nestjs/common';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
-import { extname } from 'path';
 import { UserDto } from '../users/dto/user.dto';
 import { CreateConfigDto } from './dto/create-config.dto';
 import { ConfigsService } from './config.service';
@@ -42,33 +39,7 @@ export class ConfigsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(
-    FileInterceptor('config', {
-      storage: diskStorage({
-        destination: (req, _file, callback) => {
-          const user: UserDto = req['user'];
-
-          // works only because we create a dir for user when creating a user
-          const uploadsDir =
-            process.env.NODE_ENV === 'test' ? 'test-uploads' : 'uploads';
-
-          const fullPath = `${uploadsDir}/${user.username}/configs`;
-
-          callback(null, fullPath);
-        },
-        filename: (req, file, cb) => {
-          const randFileName = randomStringGenerator();
-
-          const fileName = `${randFileName}${extname(file.originalname)}`;
-
-          req['fileName'] = fileName;
-
-          cb(null, fileName);
-        },
-      }),
-    }),
-    RemoveFileOnFailureInterceptor,
-  )
+  @UseInterceptors(FileInterceptor('config'), RemoveFileOnFailureInterceptor)
   @ApiBody({
     type: CreateConfigDto,
   })

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { existsSync, unlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, isAbsolute } from 'node:path';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -25,7 +25,11 @@ export class RemoveFileOnFailureInterceptor implements NestInterceptor {
         const file: Express.Multer.File = req['file'];
 
         const pathToFile = !!file
-          ? join(process.cwd(), file.destination, file.filename)
+          ? join(
+              isAbsolute(file.destination) ? '' : process.cwd(),
+              file.destination,
+              file.filename,
+            )
           : undefined;
 
         const isExist = pathToFile && existsSync(pathToFile);
