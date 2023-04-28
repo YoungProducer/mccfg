@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import _difference from 'lodash/difference';
@@ -9,6 +9,11 @@ import { UsersService } from '../users/users.service';
 import { configServiceErrorMessages } from './constants/error-messages';
 import { ModsService } from '../mods/mods.service';
 import { FindConfigOptionsInterface } from './interfaces/find-config.interface';
+import { DI_CONFIG } from 'server/config/constants';
+import { EnvConfig } from 'server/config/interfaces';
+import { join } from 'path';
+import { createReadStream } from 'fs';
+import { GetConfigFileResponse } from './interfaces/get-config-file.response.interface';
 
 @Injectable()
 export class ConfigsService {
@@ -16,6 +21,9 @@ export class ConfigsService {
     private readonly usersService: UsersService,
 
     private readonly modsService: ModsService,
+
+    @Inject(DI_CONFIG)
+    private readonly config: EnvConfig,
 
     @InjectRepository(ConfigEntity)
     private readonly configsRepository: Repository<ConfigEntity>,
@@ -79,5 +87,32 @@ export class ConfigsService {
 
   public async getAll(): Promise<ConfigEntity[]> {
     return await this.configsRepository.find();
+  }
+
+  public async getConfigFile(userId: number): Promise<GetConfigFileResponse> {
+    const res = await this.findOneById(userId, {
+      populate: {
+        owner: true,
+      },
+    });
+
+    const owner = res.owner;
+
+    const uploadsDir = this.config.FILE_UPLOAD_DIR;
+
+    const filePath = join(
+      process.cwd(),
+      uploadsDir,
+      owner.username,
+      'configs',
+      res.fileName,
+    );
+
+    const file = createReadStream(filePath);
+
+    return {
+      file,
+      fileName: res.initialFileName,
+    };
   }
 }

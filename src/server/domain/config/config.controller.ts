@@ -5,11 +5,11 @@ import {
   Header,
   HttpCode,
   HttpStatus,
-  Inject,
   Param,
   ParseIntPipe,
   Post,
   Query,
+  Res,
   StreamableFile,
   UploadedFile,
   UseInterceptors,
@@ -24,7 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Req } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserDto } from '../users/dto/user.dto';
 import { CreateConfigDto } from './dto/create-config.dto';
@@ -34,20 +34,11 @@ import { ConfigDto, ConfigPopulatedDto } from './dto/config.dto';
 import { plainToInstance } from 'class-transformer';
 import { Public } from '../auth/decorators/public.decorator';
 import { GetConfigQueryDto } from './dto/get-config-query.dto';
-import { DI_CONFIG } from 'server/config/constants';
-import { EnvConfig } from 'server/config/interfaces';
-import { join } from 'path';
-import { createReadStream } from 'fs';
 
 @ApiTags('Configs')
 @Controller('configs')
 export class ConfigsController {
-  constructor(
-    @Inject(DI_CONFIG)
-    private readonly config: EnvConfig,
-
-    private readonly configsService: ConfigsService,
-  ) {}
+  constructor(private readonly configsService: ConfigsService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -122,29 +113,17 @@ export class ConfigsController {
   @Get(':id/file')
   @HttpCode(HttpStatus.OK)
   @Header('Content-Type', 'application/json')
-  @Header('Content-Disposition', 'attachment; filename="config.txt"')
+  @ApiParam({
+    name: 'id',
+    type: Number,
+  })
   async getConfigFile(
     @Param('id', ParseIntPipe) id: number,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
-    const res = await this.configsService.findOneById(id, {
-      populate: {
-        owner: true,
-      },
-    });
+    const { file, fileName } = await this.configsService.getConfigFile(id);
 
-    const owner = res.owner;
-
-    const uploadsDir = this.config.FILE_UPLOAD_DIR;
-
-    const filePath = join(
-      process.cwd(),
-      uploadsDir,
-      owner.username,
-      'configs',
-      res.fileName,
-    );
-
-    const file = createReadStream(filePath);
+    res.set(`Content-Disposition', 'attachment; filename="${fileName}"`);
 
     return new StreamableFile(file);
   }

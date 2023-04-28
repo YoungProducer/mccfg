@@ -17,6 +17,7 @@ import { MCVersionEntity } from 'server/domain/mcversion/entities/mc-version.ent
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
 import { FindConfigOptionsInterface } from '../interfaces/find-config.interface';
+import { ConfigModule } from 'server/config/config.module';
 
 describe('SERVICE Config', () => {
   let configsService: ConfigsService;
@@ -26,6 +27,7 @@ describe('SERVICE Config', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ folder: './configs' })],
       providers: [
         ConfigsService,
         ModsService,
