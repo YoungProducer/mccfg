@@ -1,11 +1,13 @@
 import path from 'node:path';
 import { rm } from 'node:fs/promises';
+import { existsSync, renameSync } from 'node:fs';
 import {
   DataSource,
   EntitySubscriberInterface,
   EventSubscriber,
   InsertEvent,
   RemoveEvent,
+  UpdateEvent,
 } from 'typeorm';
 import { Inject } from '@nestjs/common';
 
@@ -48,8 +50,24 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
     const dirPath = path.join(this.getUserUploadsPath(event.databaseEntity));
 
+    if (!existsSync(dirPath)) return;
+
     await rm(dirPath, {
       recursive: true,
     });
+  }
+
+  async afterUpdate(event: UpdateEvent<UserEntity>): Promise<void> {
+    const dbEntity = event.databaseEntity;
+    const entity = event.entity;
+
+    if (dbEntity?.username && entity?.username) {
+      const oldDir = path.join(this.getUserUploadsPath(dbEntity));
+      const newDir = path.join(this.getUserUploadsPath(<UserEntity>entity));
+
+      if (oldDir !== newDir && existsSync(oldDir)) {
+        renameSync(oldDir, newDir);
+      }
+    }
   }
 }

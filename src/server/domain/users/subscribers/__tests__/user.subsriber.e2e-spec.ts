@@ -73,7 +73,7 @@ describe('SUBSCRIBER User', () => {
   it('should create a new folder when user created', async () => {
     const userToCreate = usersRepo.create({
       email: 'email',
-      username: 'test-user',
+      username: 'test-user-create',
       hash: 'hash',
       salt: 'salt',
     });
@@ -93,7 +93,7 @@ describe('SUBSCRIBER User', () => {
   it('should delete a user folder when user deleted', async () => {
     const userToCreate = usersRepo.create({
       email: 'email',
-      username: 'test-user',
+      username: 'test-user-delete',
       hash: 'hash',
       salt: 'salt',
     });
@@ -105,5 +105,41 @@ describe('SUBSCRIBER User', () => {
     const folder = join(process.cwd(), 'test-uploads', userToCreate.username);
 
     expect(existsSync(folder)).toBeFalsy();
+  });
+
+  it('should rename user uploads dir when user has been updated', async () => {
+    const userToCreate = usersRepo.create({
+      email: 'email',
+      username: 'test-user-update',
+      hash: 'hash',
+      salt: 'salt',
+    });
+
+    await usersRepo.save(userToCreate);
+
+    const createdFolder = join(
+      process.cwd(),
+      'test-uploads',
+      userToCreate.username,
+    );
+
+    expect(existsSync(createdFolder)).toBeTruthy();
+
+    const userEntity = await usersRepo.findOne({
+      where: { username: userToCreate.username },
+    });
+
+    userEntity.username = 'test-user-update-1';
+
+    await usersRepo.save(userEntity);
+
+    const updatedFolder = join(
+      process.cwd(),
+      'test-uploads',
+      userEntity.username,
+    );
+
+    expect(existsSync(createdFolder)).toBeFalsy();
+    expect(existsSync(updatedFolder)).toBeTruthy();
   });
 });
