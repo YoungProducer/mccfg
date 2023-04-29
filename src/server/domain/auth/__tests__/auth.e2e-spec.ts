@@ -34,7 +34,7 @@ describe('E2E Auth', () => {
     const moduleRef = await Test.createTestingModule({
       imports: [
         AuthModule,
-        ConfigModule.forRoot({ folder: './configs' }),
+        ConfigModule.forRoot(),
         TypeOrmModule.forRoot(containerData.options),
       ],
     }).compile();

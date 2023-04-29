@@ -3,18 +3,25 @@ import {
   NotFoundException,
   BadRequestException,
   ConflictException,
+  Inject,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import path from 'path';
 
 import { UserEntity } from './entities/user.entity';
 import { CreateUserData } from './interfaces';
 import { ConfirmationTokenEntity } from './entities/confirmation-token.entity';
 import { userErrorMessages } from './constants/error-messages';
+import { DI_CONFIG } from 'server/config/constants';
+import { EnvConfig } from 'server/config/interfaces';
 
 @Injectable()
 export class UsersService {
   constructor(
+    @Inject(DI_CONFIG)
+    private readonly config: EnvConfig,
+
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
 
@@ -81,6 +88,14 @@ export class UsersService {
 
     await this.usersRepository.save(user);
     await this.confirmatinTokensRepository.remove(tokenEntity);
+  }
+
+  public getUserUploadsPath(entity: UserEntity): string {
+    return path.join(
+      process.cwd(),
+      this.config.FILE_UPLOAD_DIR,
+      entity.username,
+    );
   }
 
   public async findAll(): Promise<UserEntity[]> {

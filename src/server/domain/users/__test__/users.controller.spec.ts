@@ -9,6 +9,7 @@ import { ConfirmationTokenEntity } from '../entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { CreateUserData } from '../interfaces';
+import { ConfigModule } from 'server/config/config.module';
 
 describe('UsersController', () => {
   let usersController: UsersController;
@@ -16,6 +17,7 @@ describe('UsersController', () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       controllers: [UsersController],
       providers: [
         UsersService,

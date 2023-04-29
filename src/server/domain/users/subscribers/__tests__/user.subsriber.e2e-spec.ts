@@ -6,17 +6,12 @@ import { ConfigModule } from 'server/config/config.module';
 import { createTestContainer } from 'server/test-utils/create-test-container';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { UserEntity } from '../../entities/user.entity';
-import { ConfigEntity } from 'server/domain/config/entities/config.entity';
-import { RefreshTokenEntity } from 'server/domain/tokens/entities/refresh-token.entity';
-import { MCVersionEntity } from 'server/domain/mcversion/entities/mc-version.entity';
-import { ModVersionEntity } from 'server/domain/mods/entities/mod-version.entity';
-import { ModEntity } from 'server/domain/mods/entities/mod.entity';
-import { ConfirmationTokenEntity } from '../../entities/confirmation-token.entity';
 import { Repository } from 'typeorm';
 import { resetRepos } from 'server/test-utils/clear-repos';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { clearTestUploadsDir } from 'server/test-utils/clear-test-uploads-dir';
+import { UsersModule } from '../../users.module';
 
 describe('SUBSCRIBER User', () => {
   jest.setTimeout(180_000);
@@ -34,15 +29,7 @@ describe('SUBSCRIBER User', () => {
       imports: [
         ConfigModule.forRoot({ folder: './configs' }),
         TypeOrmModule.forRoot(options),
-        TypeOrmModule.forFeature([
-          UserEntity,
-          ConfigEntity,
-          ModEntity,
-          ModVersionEntity,
-          MCVersionEntity,
-          ConfirmationTokenEntity,
-          RefreshTokenEntity,
-        ]),
+        UsersModule,
       ],
       providers: [UserSubscriber],
     }).compile();

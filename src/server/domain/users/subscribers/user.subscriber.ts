@@ -15,6 +15,7 @@ import { DI_CONFIG } from 'server/config/constants';
 import { EnvConfig } from 'server/config/interfaces';
 import { safeMkdir } from 'server/utils/safe-mkdir';
 import { UserEntity } from '../entities/user.entity';
+import { UsersService } from '../users.service';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -23,6 +24,8 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     private readonly config: EnvConfig,
 
     private dataSource: DataSource,
+
+    private readonly usersService: UsersService,
   ) {
     this.dataSource.subscribers.push(this);
   }
@@ -31,16 +34,11 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     return UserEntity;
   }
 
-  private getUserUploadsPath(entity: UserEntity): string {
-    return path.join(
-      process.cwd(),
-      this.config.FILE_UPLOAD_DIR,
-      entity.username,
-    );
-  }
-
   async afterInsert(event: InsertEvent<UserEntity>): Promise<void> {
-    const dirPath = path.join(this.getUserUploadsPath(event.entity), 'configs');
+    const dirPath = path.join(
+      this.usersService.getUserUploadsPath(event.entity),
+      'configs',
+    );
 
     await safeMkdir(dirPath);
   }
@@ -48,7 +46,9 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
   async beforeRemove(event: RemoveEvent<UserEntity>): Promise<void> {
     if (!event.databaseEntity) return;
 
-    const dirPath = path.join(this.getUserUploadsPath(event.databaseEntity));
+    const dirPath = path.join(
+      this.usersService.getUserUploadsPath(event.databaseEntity),
+    );
 
     if (!existsSync(dirPath)) return;
 
@@ -62,8 +62,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     const entity = event.entity;
 
     if (dbEntity?.username && entity?.username) {
-      const oldDir = path.join(this.getUserUploadsPath(dbEntity));
-      const newDir = path.join(this.getUserUploadsPath(<UserEntity>entity));
+      const oldDir = path.join(this.usersService.getUserUploadsPath(dbEntity));
+      const newDir = path.join(
+        this.usersService.getUserUploadsPath(<UserEntity>entity),
+      );
 
       if (oldDir !== newDir && existsSync(oldDir)) {
         renameSync(oldDir, newDir);

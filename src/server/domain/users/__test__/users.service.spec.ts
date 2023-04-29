@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserData } from '../interfaces';
 import { userErrorMessages } from '../constants/error-messages';
+import { ConfigModule } from 'server/config/config.module';
 
 describe('SERVICE Users', () => {
   let userService: UsersService;
@@ -20,6 +21,7 @@ describe('SERVICE Users', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
         UsersService,
         {

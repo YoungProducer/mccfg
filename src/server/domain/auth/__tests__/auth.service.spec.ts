@@ -8,6 +8,7 @@ import { UserEntity } from 'server/domain/users/entities/user.entity';
 import { SignUpCredentials } from '../interfaces/sign-up-credentials.interface';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { authErrorMessages } from '../constants/error-messages';
+import { ConfigModule } from 'server/config/config.module';
 
 describe('SERVICE Auth', () => {
   let authService: AuthService;
@@ -17,6 +18,7 @@ describe('SERVICE Auth', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
         AuthService,
         UsersService,

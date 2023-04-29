@@ -28,7 +28,7 @@ describe('CONTROLLER Auth', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ folder: './configs' })],
+      imports: [ConfigModule.forRoot()],
       controllers: [AuthController],
       providers: [
         AuthService,

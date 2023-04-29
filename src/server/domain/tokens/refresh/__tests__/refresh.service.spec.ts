@@ -8,6 +8,7 @@ import { UsersService } from 'server/domain/users/users.service';
 import { ConfirmationTokenEntity } from 'server/domain/users/entities/confirmation-token.entity';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { refreshErrorMessages } from '../constants/error-messages';
+import { ConfigModule } from 'server/config/config.module';
 
 jest.mock('@nestjs/common/utils/random-string-generator.util', () => ({
   randomStringGenerator: () => 'token',
@@ -21,6 +22,7 @@ describe('SERVICE Refresh', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot()],
       providers: [
         RefreshService,
         UsersService,
