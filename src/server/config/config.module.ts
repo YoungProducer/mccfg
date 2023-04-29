@@ -6,6 +6,10 @@ import { ConfigOptions, EnvConfig } from './interfaces';
 import { DI_CONFIG } from './constants';
 import { DynamicModule, Module } from '@nestjs/common';
 
+const defaultOptions: ConfigOptions = {
+  folder: './configs',
+};
+
 const configFactory = (options: ConfigOptions) => ({
   provide: DI_CONFIG,
   useFactory: (): EnvConfig => {
@@ -19,7 +23,7 @@ const configFactory = (options: ConfigOptions) => ({
 
 @Module({})
 export class ConfigModule {
-  static forRoot(options: ConfigOptions): DynamicModule {
+  static forRoot(options: ConfigOptions = defaultOptions): DynamicModule {
     const configProvider = configFactory(options);
 
     return {
