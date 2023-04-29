@@ -164,6 +164,7 @@ describe('SERVICE Config', () => {
 
       const payload = <CreateConfigPayload>{
         dependenciesIds: [actualDepId],
+        fileName: 'file',
       };
 
       const mockUserEntity = <UserEntity>{
@@ -213,6 +214,7 @@ describe('SERVICE Config', () => {
         owner: null,
         primaryMod: null,
         version: '1.0',
+        fullPath: '',
       };
 
       jest.spyOn(configsRepository, 'findOne').mockResolvedValue(entity);
@@ -233,6 +235,7 @@ describe('SERVICE Config', () => {
         owner: null,
         primaryMod: null,
         version: '1.0',
+        fullPath: '',
       };
 
       const findOneSpy = jest
@@ -271,6 +274,7 @@ describe('SERVICE Config', () => {
         owner: null,
         primaryMod: null,
         version: '1.0',
+        fullPath: '',
       };
 
       jest.spyOn(configsRepository, 'find').mockResolvedValue([entity]);

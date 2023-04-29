@@ -25,6 +25,11 @@ export class ConfigEntity {
   initialFileName!: string;
 
   @Column('varchar', {
+    length: 255,
+  })
+  fullPath!: string;
+
+  @Column('varchar', {
     length: 100,
   })
   version!: string;

@@ -291,6 +291,7 @@ describe('E2E Confis', () => {
           owner: null,
           version: '1.0',
           primaryMod: null,
+          fullPath: '',
         });
 
         const configEntity = await configsRepo.save(configToCreate);
@@ -321,6 +322,7 @@ describe('E2E Confis', () => {
           owner: null,
           version: '1.0',
           primaryMod: null,
+          fullPath: '',
         });
 
         const configEntity = await configsRepo.save(configToCreate);
@@ -352,6 +354,7 @@ describe('E2E Confis', () => {
           owner: userEntity,
           version: '1.0',
           primaryMod: null,
+          fullPath: '',
         });
 
         const configEntity = await configsRepo.save(configToCreate);
@@ -408,6 +411,7 @@ describe('E2E Confis', () => {
           owner: userEntity,
           version: '1.0',
           primaryMod: null,
+          fullPath: '',
         });
 
         const configEntity = await configsRepo.save(configToCreate);

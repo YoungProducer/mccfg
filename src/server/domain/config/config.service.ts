@@ -63,10 +63,15 @@ export class ConfigsService {
       );
     }
 
+    const userUploads = this.usersService.getUserUploadsPath(owner);
+
+    const fullPath = join(userUploads, 'configs', payload.fileName);
+
     const entityToCreate = this.configsRepository.create({
       owner,
       primaryMod,
       dependencies,
+      fullPath,
       fileName: payload.fileName,
       initialFileName: payload.initialFileName,
       version: payload.version,
