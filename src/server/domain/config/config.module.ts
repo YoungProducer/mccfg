@@ -10,9 +10,10 @@ import { ConfigModule } from 'server/config/config.module';
 import { DI_CONFIG } from 'server/config/constants';
 import { EnvConfig } from 'server/config/interfaces';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { extname, join } from 'node:path';
 import { UserEntity } from '../users/entities/user.entity';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
+import { ConfigSubscriber } from './subscribers/config.subscriber';
 
 @Module({
   imports: [
@@ -48,7 +49,7 @@ import { randomStringGenerator } from '@nestjs/common/utils/random-string-genera
       inject: [DI_CONFIG],
     }),
   ],
-  providers: [ConfigsService],
+  providers: [ConfigsService, ConfigSubscriber],
   controllers: [ConfigsController],
 })
 export class ConfigsModule {}
